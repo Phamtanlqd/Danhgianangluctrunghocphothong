@@ -4,45 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản trị Khảo thí - National Competency Assessment Platform</title>
-    <!-- Bootstrap CSS CDN -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/min.css">
+    <!-- Bootstrap 4 CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body { background-color: #f8f9fc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { min-height: 100vh; background: #4e73df; color: white; }
-        .sidebar a { color: rgba(255,255,255,.8); padding: 12px 20px; display: block; text-decoration: none; }
-        .sidebar a:hover, .sidebar a.active { color: #fff; background: rgba(255,255,255,.1); font-weight: bold; }
-        .card-header { background-color: #f8f9fc; font-weight: bold; }
-    </style>
+    <!-- CSS Tùy chỉnh hệ thống -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <div class="container-fluid">
     <div class="row">
-        <!-- Sidebar -->
+        <!-- Sidebar Điều Hướng -->
         <nav class="col-md-2 d-none d-md-block sidebar py-4">
-            <h4 class="text-center font-weight-bold mb-4">K-12 Assessment</h4>
-            <div class="list-group list-group-flush">
-                <a href="#itemBank" class="active" onclick="switchTab('itemBank', this)"><i class="fas fa-database mr-2"></i> Ngân Hàng Câu Hỏi</a>
-                <a href="#blueprint" onclick="switchTab('blueprint', this)"><i class="fas fa-th-large mr-2"></i> Ma Trận Đề (Blueprint)</a>
-                <a href="#sessions" onclick="switchTab('sessions', this)"><i class="fas fa-clock mr-2"></i> Quản Lý Ca Thi</a>
-                <a href="#reports" onclick="switchTab('reports', this)"><i class="fas fa-chart-bar mr-2"></i> Báo Cáo & Thống Kê</a>
+            <h4 class="text-center font-weight-bold mb-4">
+                <i class="fas fa-graduation-cap mr-2"></i>K-12 Admin
+            </h4>
+            <div class="list-group list-group-flush px-2">
+                <a href="#itemBank" class="list-group-item-action active" onclick="switchTab('itemBank', this)">
+                    <i class="fas fa-database mr-2"></i> Ngân Hàng Câu Hỏi
+                </a>
+                <a href="#blueprint" class="list-group-item-action" onclick="switchTab('blueprint', this)">
+                    <i class="fas fa-th-large mr-2"></i> Ma Trận Đề (Blueprint)
+                </a>
+                <a href="#sessions" class="list-group-item-action" onclick="switchTab('sessions', this)">
+                    <i class="fas fa-clock mr-2"></i> Quản Lý Ca Thi
+                </a>
+                <a href="#reports" class="list-group-item-action" onclick="switchTab('reports', this)">
+                    <i class="fas fa-chart-bar mr-2"></i> Báo Cáo & Thống Kê
+                </a>
             </div>
         </nav>
 
-        <!-- Main Content -->
-        <main class="col-md-10 ml-sm-auto px-4 py-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h1 class="h2 text-primary font-weight-bold">Hệ Thống Khảo Thí & Đánh Giá Năng Lực</h1>
-                <span class="badge badge-success p-2">Môi trường Quản Trị (Lớp 1 - 12)</span>
+        <!-- Main Content Area -->
+        <main class="col-md-10 ml-sm-auto px-md-4 main-content">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom">
+                <h1 class="h3 text-primary font-weight-bold">Hệ Thống Khảo Thí & Đánh Giá Năng Lực Quốc Gia</h1>
+                <span class="badge badge-success p-2 font-weight-normal">
+                    <i class="fas fa-shield-alt mr-1"></i> Môi trường Quản Trị (Lớp 1 - 12)
+                </span>
             </div>
 
-            <!-- TAB 1: NGÂN HÀNG CÂU HỎI (Item Bank) -->
+            <!-- TAB 1: NGÂN HÀNG CÂU HỎI -->
             <div id="section-itemBank" class="admin-section">
-                <div class="card shadow mb-4">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-database"></i> Quản lý Ngân hàng Câu hỏi (Toán, Tiếng Việt, Ngữ văn...)</span>
-                        <button class="btn btn-primary btn-sm" onclick="openItemModal()"><i class="fas fa-plus"></i> Thêm Câu Hỏi Mới</button>
+                        <span><i class="fas fa-database text-primary mr-2"></i> Quản lý Ngân hàng Câu hỏi (Toán, Tiếng Việt, Ngữ văn...)</span>
+                        <button class="btn btn-primary btn-sm" onclick="openItemModal()"><i class="fas fa-plus mr-1"></i> Thêm Câu Hỏi Mới</button>
                     </div>
                     <div class="card-body">
                         <!-- Bộ lọc tìm kiếm câu hỏi -->
@@ -50,9 +58,9 @@
                             <div class="col-md-3">
                                 <select class="form-control form-control-sm" id="filterGrade" onchange="filterQuestions()">
                                     <option value="">-- Tất cả Khối lớp --</option>
-                                    <option value="Tiểu học">Tiểu học (Lớp 1-5)</option>
-                                    <option value="THCS">THCS (Lớp 6-9)</option>
-                                    <option value="THPT">THPT (Lớp 10-12)</option>
+                                    <option value="Tiểu học">Khối Tiểu học (1-5)</option>
+                                    <option value="THCS">Khối THCS (6-9)</option>
+                                    <option value="THPT">Khối THPT (10-12)</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -61,33 +69,32 @@
                                     <option value="Toán học">Toán học</option>
                                     <option value="Tiếng Việt">Tiếng Việt (Tiểu học)</option>
                                     <option value="Ngữ văn">Ngữ văn (THCS/THPT)</option>
-                                    <option value="Khoa học">Khoa học</option>
+                                    <option value="Khoa học">Khoa học Tự nhiên</option>
                                 </select>
                             </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover" id="tblQuestions">
-                                <thead class="thead-light">
+                                <thead>
                                     <tr>
                                         <th>Mã ID</th>
                                         <th>Môn học</th>
                                         <th>Khối</th>
-                                        <th>Nội dung / Ngữ liệu</th>
-                                        <th>Mức độ</th>
-                                        <th>Thao tác</th>
+                                        <th>Nội dung / Ngữ liệu đọc hiểu</th>
+                                        <th>Mức độ GDPT 2018</th>
+                                        <th class="text-center">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Dữ liệu mẫu minh họa -->
                                     <tr>
                                         <td>Q-101</td>
                                         <td>Ngữ văn</td>
                                         <td>Lớp 9</td>
                                         <td>Đọc hiểu đoạn trích thơ "Mùa xuân nho nhỏ"... (Có ngữ liệu)</td>
                                         <td><span class="badge badge-warning">Thông hiểu</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info" title="Sửa"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger" title="Xóa"><i class="fas fa-trash"></i></button>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-info" title="Sửa"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" title="Xóa"><i class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     <tr>
@@ -96,9 +103,9 @@
                                         <td>Lớp 5</td>
                                         <td>Nghe - Hiểu đoạn audio câu chuyện và chọn đáp án đúng.</td>
                                         <td><span class="badge badge-success">Nhận biết</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-info"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -108,24 +115,24 @@
                 </div>
             </div>
 
-            <!-- TAB 2: MA TRẬN ĐỀ THI (Blueprint) -->
+            <!-- TAB 2: MA TRẬN ĐỀ THI (BLUEPRINT) -->
             <div id="section-blueprint" class="admin-section" style="display:none;">
-                <div class="card shadow mb-4">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-th-large"></i> Cấu trúc Ma trận đặc tả đề thi (Chuẩn GDPT 2018)</span>
-                        <button class="btn btn-success btn-sm" onclick="openBlueprintModal()"><i class="fas fa-plus"></i> Tạo Ma Trận Mới</button>
+                        <span><i class="fas fa-th-large text-success mr-2"></i> Cấu trúc Ma trận đặc tả đề thi (Chuẩn GDPT 2018)</span>
+                        <button class="btn btn-success btn-sm" onclick="openBlueprintModal()"><i class="fas fa-plus mr-1"></i> Tạo Ma Trận Mới</button>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-bordered">
-                                <thead class="thead-light">
+                                <thead>
                                     <tr>
                                         <th>Tên Đề / Ma Trận</th>
                                         <th>Khối Lớp</th>
                                         <th>Môn</th>
                                         <th>Phân bố mức độ (NB - TH - VD - VDC)</th>
                                         <th>Thời lượng</th>
-                                        <th>Thao tác</th>
+                                        <th class="text-center">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -135,8 +142,8 @@
                                         <td>Ngữ văn</td>
                                         <td>40% - 30% - 20% - 10%</td>
                                         <td>90 phút</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-primary">Xem chi tiết</button>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-primary">Chi tiết</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -146,23 +153,23 @@
                 </div>
             </div>
 
-            <!-- TAB 3: QUẢN LÝ CA THI (Exam Sessions) -->
+            <!-- TAB 3: QUẢN LÝ CA THI -->
             <div id="section-sessions" class="admin-section" style="display:none;">
-                <div class="card shadow mb-4">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-clock"></i> Quản lý Ca thi trực tuyến trên máy tính</span>
-                        <button class="btn btn-warning btn-sm text-white" onclick="openSessionModal()"><i class="fas fa-plus"></i> Lên Lịch Ca Thi</button>
+                        <span><i class="fas fa-clock text-warning mr-2"></i> Quản lý Ca thi trực tuyến trên máy tính</span>
+                        <button class="btn btn-warning btn-sm text-dark font-weight-bold" onclick="openSessionModal()"><i class="fas fa-plus mr-1"></i> Lên Lịch Ca Thi</button>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-bordered">
-                                <thead class="thead-light">
+                                <thead>
                                     <tr>
                                         <th>Tên Ca Thi</th>
                                         <th>Khối Áp Dụng</th>
                                         <th>Thời Gian Bắt Đầu</th>
                                         <th>Trạng Thái Bảo Mật</th>
-                                        <th>Hành động</th>
+                                        <th class="text-center">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -171,7 +178,7 @@
                                         <td>Khối 5</td>
                                         <td>15/12/2026 - 08:00</td>
                                         <td><span class="badge badge-success">Bật Fullscreen / Chống Tab-switching</span></td>
-                                        <td>
+                                        <td class="text-center">
                                             <button class="btn btn-sm btn-success">Mở ca thi</button>
                                             <button class="btn btn-sm btn-secondary">Khóa</button>
                                         </td>
@@ -183,13 +190,13 @@
                 </div>
             </div>
 
-            <!-- TAB 4: BÁO CÁO -->
+            <!-- TAB 4: BÁO CÁO & THỐNG KÊ -->
             <div id="section-reports" class="admin-section" style="display:none;">
-                <div class="card shadow mb-4">
-                    <div class="card-header"><i class="fas fa-chart-bar"></i> Trung tâm Báo cáo & Phân tích phổ điểm</div>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-chart-bar text-info mr-2"></i> Trung tâm Báo cáo & Phân tích phổ điểm</div>
                     <div class="card-body">
-                        <p class="text-muted">Hệ thống sẽ tổng hợp phổ điểm tự động theo từng khối lớp (Đặc biệt khối 5, 9, 12 chuẩn bị cho kỳ kiểm tra tháng 12/2026).</p>
-                        <button class="btn btn-outline-primary btn-sm"><i class="fas fa-file-excel"></i> Xuất Báo Cáo Excel Tổng Hợp</button>
+                        <p class="text-muted">Hệ thống tổng hợp phổ điểm tự động theo từng khối lớp (Đặc biệt khối 5, 9, 12 chuẩn bị cho kỳ kiểm tra tháng 12/2026).</p>
+                        <button class="btn btn-outline-primary btn-sm"><i class="fas fa-file-excel mr-1"></i> Xuất Báo Cáo Excel Tổng Hợp</button>
                     </div>
                 </div>
             </div>
@@ -197,38 +204,39 @@
     </div>
 </div>
 
-<!-- Modal Thêm câu hỏi (Hỗ trợ Ngữ văn / Tiếng Việt có Ngữ liệu & Audio) -->
+<!-- Modal Thêm câu hỏi vào Ngân hàng đề -->
 <div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Thêm / Chỉnh sửa Câu hỏi (Ngân hàng đề)</h5>
+                <h5 class="modal-title font-weight-bold">Thêm / Chỉnh sửa Câu hỏi (Ngân hàng đề)</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="itemForm">
                     <div class="form-row">
                         <div class="form-group col-md-4">
-                            <label>Môn học</label>
-                            <select class="form-control">
+                            <label class="font-weight-bold">Môn học</label>
+                            <select class="form-control" id="itemSubject">
                                 <option>Ngữ văn</option>
                                 <option>Tiếng Việt</option>
                                 <option>Toán học</option>
+                                <option>Tiếng Anh</option>
                             </select>
                         </div>
                         <div class="form-group col-md-4">
-                            <label>Khối lớp</label>
-                            <select class="form-control">
+                            <label class="font-weight-bold">Khối lớp</label>
+                            <select class="form-control" id="itemGrade">
                                 <option>Lớp 5</option>
                                 <option>Lớp 9</option>
                                 <option>Lớp 12</option>
                             </select>
                         </div>
                         <div class="form-group col-md-4">
-                            <label>Mức độ nhận thức (GDPT 2018)</label>
-                            <select class="form-control">
+                            <label class="font-weight-bold">Mức độ nhận thức</label>
+                            <select class="form-control" id="itemLevel">
                                 <option>Nhận biết</option>
                                 <option>Thông hiểu</option>
                                 <option>Vận dụng</option>
@@ -237,24 +245,24 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label><strong>Ngữ liệu đọc hiểu (Dành riêng cho môn Ngữ văn / Tiếng Việt)</strong></label>
-                        <textarea class="form-control" rows="3" placeholder="Nhập đoạn văn bản / thơ / thông tin nguồn đọc hiểu..."></textarea>
+                        <label class="font-weight-bold text-primary">Ngữ liệu đọc hiểu (Dành riêng cho môn Ngữ văn / Tiếng Việt)</label>
+                        <textarea class="form-control" id="itemPassage" rows="3" placeholder="Nhập đoạn văn bản / thơ / thông tin nguồn đọc hiểu..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label><strong>Nội dung câu hỏi</strong></label>
-                        <textarea class="form-control" rows="2" placeholder="Nhập câu hỏi yêu cầu học sinh giải quyết..."></textarea>
+                        <label class="font-weight-bold">Nội dung câu hỏi</label>
+                        <textarea class="form-control" id="itemQuestion" rows="2" placeholder="Nhập câu hỏi yêu cầu học sinh giải quyết..."></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary btn-sm" onclick="alert('Đã lưu câu hỏi thành công vào ngân hàng!')">Lưu Câu Hỏi</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="saveQuestion()">Lưu Câu Hỏi</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- JavaScript xử lý chuyển Tab mượt mà -->
+<!-- JavaScript Dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bundle.min.js"></script>
 <script>
@@ -269,17 +277,21 @@
         $('#itemModal').modal('show');
     }
 
+    function saveQuestion() {
+        alert('Đã lưu câu hỏi thành công vào ngân hàng!');
+        $('#itemModal').modal('hide');
+    }
+
     function openBlueprintModal() {
-        alert('Mở giao diện cấu hình ma trận đề thi.');
+        alert('Giao diện thiết lập ma trận đề thi.');
     }
 
     function openSessionModal() {
-        alert('Mở giao diện cấu hình ca thi trực tuyến.');
+        alert('Giao diện cấu hình ca thi trực tuyến.');
     }
 
     function filterQuestions() {
-        // Xử lý lọc dữ liệu bảng câu hỏi
-        console.log("Đang lọc dữ liệu theo khối lớp và môn học...");
+        console.log("Đang lọc danh sách câu hỏi...");
     }
 </script>
 </body>
