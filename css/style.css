@@ -1,6 +1,5 @@
 /* ==========================================================================
    NATIONAL COMPETENCY ASSESSMENT PLATFORM - MAIN STYLESHEET
-   Style: Professional & Modern Assessment UI
    ========================================================================== */
 
 :root {
@@ -10,23 +9,20 @@
     --success-color: #1cc88a;
     --warning-color: #f6c23e;
     --danger-color: #e74a3b;
-    --dark-bg: #2c3e50;
     --light-bg: #f8f9fc;
     --card-border: #e3e6f0;
     --text-primary: #2d3748;
-    --text-muted: #858796;
 }
 
-/* Base Layout & Typography */
 body {
     background-color: var(--light-bg);
     color: var(--text-primary);
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
 }
 
-/* Sidebar Styling (Dành cho trang Quản trị Admin) */
+/* Sidebar Quản Trị */
 .sidebar {
     min-height: 100vh;
     background: var(--primary-gradient);
@@ -38,7 +34,6 @@ body {
 .sidebar h4 {
     font-size: 1.15rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     padding-bottom: 1rem;
     margin-bottom: 1.5rem;
@@ -63,7 +58,6 @@ body {
     transform: translateX(4px);
 }
 
-/* Main Content & Cards */
 .main-content {
     padding: 2rem;
 }
@@ -74,42 +68,17 @@ body {
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 125, 0.08);
     background-color: #ffffff;
     margin-bottom: 1.5rem;
-    overflow: hidden;
 }
 
 .card-header {
     background-color: #ffffff;
     border-bottom: 1px solid var(--card-border);
     font-weight: 700;
-    font-size: 1rem;
     color: var(--primary-color);
     padding: 1rem 1.25rem;
 }
 
-/* Tables & Badges */
-.table thead th {
-    background-color: #f1f5f9;
-    color: #475569;
-    border-bottom: 2px solid var(--card-border);
-    font-weight: 600;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.table td {
-    vertical-align: middle;
-    font-size: 0.92rem;
-}
-
-.badge {
-    padding: 6px 12px;
-    font-weight: 600;
-    border-radius: 20px;
-    font-size: 0.78rem;
-}
-
-/* Exam Player UI (Màn hình thi của thí sinh) */
+/* Exam Header & Layout Thi */
 .exam-header {
     background: var(--primary-gradient);
     color: #ffffff;
@@ -127,10 +96,8 @@ body {
     border-radius: 20px;
     font-weight: 700;
     font-size: 1.1rem;
-    letter-spacing: 1px;
 }
 
-/* Bố cục Split-screen môn Ngữ văn / Tiếng Việt */
 .passage-box, .question-box {
     background: #ffffff;
     border: 1px solid var(--card-border);
@@ -145,7 +112,6 @@ body {
     border-left: 4px solid var(--secondary-color);
 }
 
-/* Question Palette (Bảng nút câu hỏi điều hướng) */
 .question-palette button {
     width: 40px;
     height: 40px;
@@ -153,26 +119,8 @@ body {
     font-weight: 700;
     border-radius: 8px;
     border: 1px solid var(--card-border);
-    transition: all 0.15s ease;
 }
 
-.question-palette button:hover {
-    transform: scale(1.08);
-}
-
-.btn-answered {
-    background-color: var(--success-color) !important;
-    color: #ffffff !important;
-    border-color: var(--success-color) !important;
-}
-
-.btn-flagged {
-    background-color: var(--warning-color) !important;
-    color: #000000 !important;
-    border-color: var(--warning-color) !important;
-}
-
-.btn-current {
-    border: 2px solid var(--secondary-color) !important;
-    box-shadow: 0 0 8px rgba(78, 115, 223, 0.5);
-}
+.btn-answered { background-color: var(--success-color) !important; color: #fff !important; }
+.btn-flagged { background-color: var(--warning-color) !important; color: #000 !important; }
+.btn-current { border: 2px solid var(--secondary-color) !important; }
