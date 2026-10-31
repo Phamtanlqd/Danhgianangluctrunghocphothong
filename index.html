@@ -3,234 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Đánh Giá Năng Lực Học Sinh - Màn Hình Thi Trực Tuyến</title>
-    <!-- Bootstrap 4 CSS CDN -->
+    <title>Hệ Thống Đánh Giá Năng Lực Học Sinh - Trực Tuyến</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- CSS Tùy chỉnh hệ thống -->
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* Chặn bôi đen nội dung câu hỏi chống copy */
-        body {
-            user-select: none;
-            -webkit-user-select: none;
+        body { user-select: none; -webkit-user-select: none; }
+        #loginScreen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            z-index: 9998; display: flex; justify-content: center; align-items: center;
         }
-        /* Màn hình phủ cảnh báo chống gian lận */
+        .login-card {
+            background: #fff; padding: 40px; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 450px;
+        }
         #cheatWarning {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.88);
-            color: white;
-            z-index: 9999;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.88); color: white; z-index: 9999;
+            display: none; justify-content: center; align-items: center; text-align: center;
         }
     </style>
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- Màn hình cảnh báo vi phạm Chống gian lận -->
+<!-- MÀN HÌNH ĐĂNG NHẬP THÍ SINH -->
+<div id="loginScreen">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <i class="fas fa-graduation-cap text-primary fa-3x mb-2"></i>
+            <h4 class="font-weight-bold text-dark">K-12 Assessment Platform</h4>
+            <p class="text-muted small">Cổng Đánh Giá Năng Lực Trực Tuyến</p>
+        </div>
+        <form onsubmit="handleStudentLogin(event)">
+            <div class="form-group">
+                <label class="font-weight-bold small">Số Báo Danh (SBD)</label>
+                <input type="text" class="form-control" id="loginSBD" required placeholder="VD: 90102">
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold small">Họ và Tên Học Sinh</label>
+                <input type="text" class="form-control" id="loginName" required placeholder="VD: Nguyễn Văn An">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label class="font-weight-bold small">Khối Lớp</label>
+                    <select class="form-control" id="loginGrade"><option value="5">Khối 5</option><option value="9" selected>Khối 9</option><option value="12">Khối 12</option></select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="font-weight-bold small">Mã Ca Thi</label>
+                    <input type="text" class="form-control" id="loginSession" value="ROOM-01" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block font-weight-bold py-2 mt-4">VÀO PHÒNG THI</button>
+        </form>
+    </div>
+</div>
+
+<!-- MÀN HÌNH CẢNH BÁO GIAN LẬN -->
 <div id="cheatWarning">
     <div class="p-4">
         <i class="fas fa-exclamation-triangle text-warning display-1 mb-3"></i>
         <h2 class="text-danger font-weight-bold">CẢNH BÁO VI PHẠM QUY CHẾ THI!</h2>
-        <p class="lead">Hệ thống phát hiện bạn vừa rời khỏi màn hình bài thi (Chuyển tab / Mở ứng dụng khác).</p>
-        <p>Số lần vi phạm: <strong id="cheatCount" class="text-warning">1</strong> / 3 (Quá 3 lần bài thi sẽ tự động bị khóa và nộp bài!).</p>
+        <p class="lead">Bạn vừa rời khỏi màn hình bài thi (Chuyển tab / Mở ứng dụng khác).</p>
+        <p>Số lần vi phạm: <strong id="cheatCount" class="text-warning">1</strong> / 3</p>
         <button class="btn btn-primary btn-lg mt-3" onclick="resumeExam()">Tôi đã hiểu - Tiếp tục làm bài</button>
     </div>
 </div>
 
-<!-- Header Ca Thi Cố Định Phía Trên -->
-<div class="exam-header d-flex justify-content-between align-items-center">
+<!-- HEADER CA THI -->
+<div class="exam-header d-flex justify-content-between align-items-center" id="examHeader" style="display:none !important;">
     <div>
-        <h5 class="m-0 font-weight-bold" id="examTitle"><i class="fas fa-file-alt mr-2"></i> Đánh Giá Năng Lực Ngữ Văn 9 - Giữa Kỳ I</h5>
-        <small id="studentInfo">Thí sinh: Nguyễn Văn An - SBD: 90102 - Khối 9 (Cơ sở 1)</small>
+        <h5 class="m-0 font-weight-bold"><i class="fas fa-file-alt mr-2"></i> Đánh Giá Năng Lực Trực Tuyến</h5>
+        <small id="displayStudentInfo">Thí sinh: ...</small>
     </div>
     <div class="d-flex align-items-center">
-        <div class="timer-box mr-3">
-            <i class="fas fa-clock mr-1"></i> <span id="timer">45:00</span>
-        </div>
+        <div class="timer-box mr-3"><i class="fas fa-clock mr-1"></i> <span id="timer">45:00</span></div>
         <button class="btn btn-success btn-sm font-weight-bold" onclick="confirmSubmit()"><i class="fas fa-paper-plane mr-1"></i> NỘP BÀI</button>
     </div>
 </div>
 
-<!-- Container Nội Dung Bài Thi -->
-<div class="container-fluid main-content" style="margin-top: 60px;">
+<!-- CONTAINER NỘI DUNG THI (3 CỘT CHO NGỮ VĂN / TIẾNG VIỆT) -->
+<div class="container-fluid main-content" id="examMainContent" style="display:none; margin-top: 70px;">
     <div class="row">
-        
-        <!-- CỘT 1: Ngữ liệu Đọc hiểu (Dành riêng cho Ngữ văn / Tiếng Việt) -->
-        <div class="col-md-5" id="passageCol">
+        <!-- Cột 1: Ngữ liệu đọc hiểu -->
+        <div class="col-md-5">
             <div class="passage-box">
-                <h6 class="text-primary font-weight-bold border-bottom pb-2">
-                    <i class="fas fa-book-open mr-1"></i> NGỮ LIỆU ĐỌC HIỂU
-                </h6>
-                <!-- Audio Player phát âm thanh bài học (Cho Tiếng Việt Tiểu học) -->
-                <div id="audioPlayerContainer" class="my-2" style="display:none;">
-                    <audio id="passageAudio" controls class="w-100">
-                        <source src="" type="audio/mpeg">
-                        Trình duyệt không hỗ trợ phát âm thanh.
-                    </audio>
-                </div>
-                <div id="passageContent" class="text-justify mt-3" style="line-height: 1.8;">
-                    <p><em>Đọc đoạn văn bản sau và trả lời các câu hỏi bên phải:</em></p>
+                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU ĐỌC HIỂU</h6>
+                <div class="text-justify mt-3" style="line-height: 1.8;">
                     <blockquote class="blockquote bg-light p-3 border-left border-primary" style="font-size: 0.95rem;">
-                        "Mọc giữa dòng sông xanh<br>
-                        Một bông hoa tím biếc<br>
-                        Ơi con chim chiền chiện<br>
-                        Hót chi mà vang trời<br>
-                        Từng giọt long lanh rơi<br>
-                        Tôi đưa hứng trọn bàn tay..."
-                        <footer class="blockquote-footer mt-1">Trích <em>Mùa xuân nho nhỏ</em> - Thanh Hải</footer>
+                        "Mọc giữa dòng sông xanh / Một bông hoa tím biếc..."
+                        <footer class="blockquote-footer mt-1">Thanh Hải</footer>
                     </blockquote>
                 </div>
             </div>
         </div>
-
-        <!-- CỘT 2: Nội dung Câu hỏi & Lựa chọn -->
-        <div class="col-md-4" id="questionCol">
+        <!-- Cột 2: Câu hỏi -->
+        <div class="col-md-4">
             <div class="question-box">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                    <h6 class="font-weight-bold text-dark mb-0" id="questionNumber">Câu 1 / 20</h6>
-                    <button class="btn btn-outline-warning btn-sm" id="btnFlag" onclick="toggleFlag()"><i class="far fa-bookmark"></i> Đánh dấu</button>
+                    <h6 class="font-weight-bold text-dark mb-0">Câu 1 / 20</h6>
+                    <button class="btn btn-outline-warning btn-sm"><i class="far fa-bookmark"></i> Đánh dấu</button>
                 </div>
-
-                <!-- Thẻ Nội dung câu hỏi -->
-                <div id="questionContent" class="mb-4">
-                    <p class="font-weight-bold">Phương thức biểu đạt chính được sử dụng trong đoạn thơ trên là gì?</p>
-                </div>
-
-                <!-- Danh sách đáp án Trắc nghiệm -->
-                <div id="optionsContainer">
-                    <div class="custom-control custom-radio mb-3">
-                        <input type="radio" id="optA" name="answerOption" class="custom-control-input" value="A">
-                        <label class="custom-control-label" for="optA">A. Biểu cảm</label>
-                    </div>
-                    <div class="custom-control custom-radio mb-3">
-                        <input type="radio" id="optB" name="answerOption" class="custom-control-input" value="B">
-                        <label class="custom-control-label" for="optB">B. Tự sự</label>
-                    </div>
-                    <div class="custom-control custom-radio mb-3">
-                        <input type="radio" id="optC" name="answerOption" class="custom-control-input" value="C">
-                        <label class="custom-control-label" for="optC">C. Nghị luận</label>
-                    </div>
-                    <div class="custom-control custom-radio mb-3">
-                        <input type="radio" id="optD" name="answerOption" class="custom-control-input" value="D">
-                        <label class="custom-control-label" for="optD">D. Thuyết minh</label>
-                    </div>
-                </div>
-
-                <!-- Ô nhập liệu Tự luận / Viết bài văn ngắn -->
-                <div id="essayContainer" style="display:none;" class="mt-3">
-                    <label class="font-weight-bold text-primary">Bài làm tự luận của bạn:</label>
-                    <textarea class="form-control" id="essayAnswer" rows="8" placeholder="Nhập bài làm tự luận tại đây..."></textarea>
-                    <small class="text-muted mt-1 d-block">Số từ: <span id="wordCount">0</span> từ</small>
-                </div>
-
-                <!-- Điều hướng Bài thi -->
-                <div class="d-flex justify-content-between mt-4 pt-3 border-top">
-                    <button class="btn btn-secondary btn-sm" onclick="prevQuestion()"><i class="fas fa-arrow-left mr-1"></i> Câu trước</button>
-                    <button class="btn btn-primary btn-sm" onclick="nextQuestion()">Câu tiếp theo <i class="fas fa-arrow-right ml-1"></i></button>
-                </div>
+                <p class="font-weight-bold">Phương thức biểu đạt chính là gì?</p>
+                <div class="custom-control custom-radio mb-3"><input type="radio" id="optA" name="opt" class="custom-control-input"><label class="custom-control-label" for="optA">A. Biểu cảm</label></div>
+                <div class="custom-control custom-radio mb-3"><input type="radio" id="optB" name="opt" class="custom-control-input"><label class="custom-control-label" for="optB">B. Tự sự</label></div>
             </div>
         </div>
-
-        <!-- CỘT 3: Bảng danh sách câu hỏi (Question Palette) -->
+        <!-- Cột 3: Palette -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-white font-weight-bold">
-                    <i class="fas fa-th mr-1"></i> Danh Sách Câu Hỏi
-                </div>
+                <div class="card-header bg-white font-weight-bold"><i class="fas fa-th mr-1"></i> Danh Sách Câu Hỏi</div>
                 <div class="card-body">
-                    <div class="question-palette d-flex flex-wrap" id="questionPalette">
+                    <div class="question-palette d-flex flex-wrap">
                         <button class="btn btn-light btn-current">1</button>
-                        <button class="btn btn-light btn-answered">2</button>
-                        <button class="btn btn-light btn-flagged">3</button>
-                        <button class="btn btn-light">4</button>
-                        <button class="btn btn-light">5</button>
-                    </div>
-                    <hr>
-                    <div class="small">
-                        <span class="badge badge-success mr-1">&nbsp;&nbsp;</span> Đã làm
-                        <span class="badge badge-warning ml-2 mr-1">&nbsp;&nbsp;</span> Đánh dấu
-                        <span class="badge badge-light border ml-2 mr-1">&nbsp;&nbsp;</span> Chưa làm
+                        <button class="btn btn-light">2</button>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
-<!-- JavaScript Dependencies & Logic Chống Gian Lận -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script>
     let cheatViolations = 0;
-    const MAX_VIOLATIONS = 3;
-
-    // Phát hiện thí sinh chuyển Tab hoặc thu nhỏ trình duyệt
-    document.addEventListener("visibilitychange", function() {
-        if (document.hidden) {
-            triggerAntiCheat();
-        }
-    });
-
-    window.addEventListener("blur", function() {
-        triggerAntiCheat();
-    });
-
+    function handleStudentLogin(e) {
+        e.preventDefault();
+        let name = $('#loginName').val();
+        let sbd = $('#loginSBD').val();
+        $('#displayStudentInfo').text(`Thí sinh: ${name} - SBD: ${sbd}`);
+        $('#loginScreen').fadeOut();
+        $('#examHeader').show();
+        $('#examMainContent').show();
+        if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(err=>{}); }
+        startTimer();
+    }
+    document.addEventListener("visibilitychange", function() { if (document.hidden && $('#examMainContent').is(':visible')) { triggerAntiCheat(); } });
     function triggerAntiCheat() {
         cheatViolations++;
-        document.getElementById("cheatCount").innerText = cheatViolations;
-        document.getElementById("cheatWarning").style.display = "flex";
-
-        if (cheatViolations >= MAX_VIOLATIONS) {
-            alert("Bạn đã vi phạm quy chế thi quá 3 lần. Hệ thống sẽ tự động nộp bài ngay lập tức!");
-            submitExam();
-        }
+        $('#cheatCount').text(cheatViolations);
+        $('#cheatWarning').css('display', 'flex');
+        if (cheatViolations >= 3) { alert("Quá 3 lần vi phạm! Hệ thống tự động nộp bài."); submitExam(); }
     }
-
-    function resumeExam() {
-        document.getElementById("cheatWarning").style.display = "none";
-        if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen();
-        }
+    function resumeExam() { $('#cheatWarning').hide(); }
+    function startTimer() {
+        let t = 2700;
+        setInterval(() => {
+            if(t <= 0) return;
+            t--;
+            let m = Math.floor(t/60), s = t%60;
+            $('#timer').text((m<10?"0"+m:m)+":"+(s<10?"0"+s:s));
+        }, 1000);
     }
-
-    // Chặn phím tắt gian lận F12, Ctrl+C, Ctrl+V, Alt+Tab...
-    document.addEventListener("keydown", function(e) {
-        if (e.key === "F12" || (e.ctrlKey && (e.key === "c" || e.key === "v" || e.key === "u" || e.key === "a"))) {
-            e.preventDefault();
-            alert("Thao tác bị cấm trong quá trình làm bài thi!");
-        }
-    });
-
-    // Bộ đếm thời gian
-    let totalSeconds = 2700; // 45 phút
-    setInterval(function() {
-        if (totalSeconds <= 0) {
-            alert("Đã hết thời gian làm bài!");
-            submitExam();
-            return;
-        }
-        totalSeconds--;
-        let mins = Math.floor(totalSeconds / 60);
-        let secs = totalSeconds % 60;
-        document.getElementById("timer").innerText = 
-            (mins < 10 ? "0" + mins : mins) + ":" + (secs < 10 ? "0" + secs : secs);
-    }, 1000);
-
-    function confirmSubmit() {
-        if (confirm("Bạn có chắc chắn muốn nộp bài thi ngay bây giờ?")) {
-            submitExam();
-        }
-    }
-
-    function submitExam() {
-        alert("Bài thi đã được ghi nhận thành công!");
-    }
+    function confirmSubmit() { if(confirm("Bạn có chắc chắn muốn nộp bài?")) submitExam(); }
+    function submitExam() { alert("Đã nộp bài thành công!"); location.reload(); }
 </script>
 </body>
 </html>
