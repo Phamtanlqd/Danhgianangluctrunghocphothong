@@ -68,10 +68,3 @@ body {
     overflow-y: auto; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 .passage-box { border-left: 4px solid var(--secondary-color); }
-.question-palette button {
-    width: 40px; height: 40px; margin: 4px; font-weight: 700;
-    border-radius: 8px; border: 1px solid var(--card-border);
-}
-.btn-answered { background-color: var(--success-color) !important; color: #fff !important; }
-.btn-flagged { background-color: var(--warning-color) !important; color: #000 !important; }
-.btn-current { border: 2px solid var(--secondary-color) !important; }
