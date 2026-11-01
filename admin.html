@@ -24,6 +24,7 @@
 </head>
 <body>
 
+<!-- MODAL ĐĂNG NHẬP -->
 <div id="adminLoginModal">
     <div class="login-box text-center">
         <i class="fas fa-user-shield text-primary fa-3x mb-3"></i>
@@ -42,8 +43,10 @@
     </div>
 </div>
 
+<!-- GIAO DIỆN CHÍNH -->
 <div class="container-fluid" id="adminDashboard" style="display: none;">
     <div class="row">
+        <!-- SIDEBAR -->
         <nav class="col-md-2 d-none d-md-block sidebar py-4">
             <h4 class="text-center font-weight-bold mb-4"><i class="fas fa-graduation-cap mr-2"></i>K-12 Admin</h4>
             <div class="list-group list-group-flush px-2">
@@ -54,6 +57,7 @@
             </div>
         </nav>
 
+        <!-- MAIN CONTENT -->
         <main class="col-md-10 ml-sm-auto px-md-4 main-content">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom">
                 <h1 class="h3 text-primary font-weight-bold">Hệ Thống Đánh Giá Năng Lực (Khối 1 - 12)</h1>
@@ -65,7 +69,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-database text-primary mr-2"></i> Ngân Hàng Câu Hỏi (Hỗ trợ LaTeX)</span>
-                        <button class="btn btn-primary btn-sm" onclick="$('#itemModal').modal('show')"><i class="fas fa-plus mr-1"></i> Thêm Câu Hỏi</button>
+                        <button class="btn btn-primary btn-sm font-weight-bold" onclick="openItemModal()"><i class="fas fa-plus mr-1"></i> Thêm Câu Hỏi</button>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -74,7 +78,7 @@
                                     <tr><th>ID</th><th>Môn</th><th>Khối</th><th>Dạng</th><th>Nội dung</th><th>Mức độ</th></tr>
                                 </thead>
                                 <tbody id="questionTableBody">
-                                    <tr><td colspan="6" class="text-center text-muted">Đang tải dữ liệu...</td></tr>
+                                    <tr><td colspan="6" class="text-center text-muted">Đang tải dữ liệu câu hỏi...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -222,8 +226,8 @@
                             <div class="card-header"><i class="fas fa-book text-info mr-2"></i> Danh Mục Môn Học Chuẩn</div>
                             <div class="card-body">
                                 <form onsubmit="saveSubjectCategory(event)" class="mb-3">
-                                    <div class="form-group"><input type="text" class="form-control" id="catCode" placeholder="Mã môn (VD: TOAN)" required></div>
-                                    <div class="form-group"><input type="text" class="form-control" id="catName" placeholder="Tên môn học (VD: Toán học)" required></div>
+                                    <div class="form-group"><input type="text" class="form-control" id="catCode" placeholder="Mã môn (VD: TIN)" required></div>
+                                    <div class="form-group"><input type="text" class="form-control" id="catName" placeholder="Tên môn học (VD: Tin học)" required></div>
                                     <button type="submit" class="btn btn-info btn-block font-weight-bold">+ Thêm Môn Học</button>
                                 </form>
                                 <table class="table table-bordered table-sm">
@@ -266,14 +270,17 @@
             <div class="modal-body">
                 <form onsubmit="saveItem(event)">
                     <div class="form-row">
-                        <div class="form-group col-md-4"><label>Môn học</label><select class="form-control select-subject" id="itemSub" required></select></div>
-                        <div class="form-group col-md-4"><label>Khối</label><input type="text" class="form-control" id="itemGr" required placeholder="VD: 12"></div>
+                        <div class="form-group col-md-4">
+                            <label>Môn học</label>
+                            <select class="form-control select-subject" id="itemSub" required></select>
+                        </div>
+                        <div class="form-group col-md-4"><label>Khối</label><input type="text" class="form-control" id="itemGr" required placeholder="VD: 11"></div>
                         <div class="form-group col-md-4"><label>Mức độ</label><select class="form-control" id="itemLev"><option>Nhận biết</option><option>Thông hiểu</option><option>Vận dụng</option><option>Vận dụng cao</option></select></div>
                     </div>
                     <div class="form-group"><label>Dạng câu hỏi</label><select class="form-control" id="itemType"><option value="TRAC_NGHIEM">Trắc nghiệm</option><option value="DUNG_SAI">Đúng / Sai</option><option value="TRA_LOI_NGAN">Trả lời ngắn</option><option value="TU_LUAN">Tự luận</option></select></div>
                     <div class="form-group"><label class="font-weight-bold text-primary">Nội dung câu hỏi (Hỗ trợ LaTeX)</label><textarea class="form-control" id="itemQ" rows="3" required></textarea></div>
                     <div class="form-group"><label>Đáp án chuẩn</label><input type="text" class="form-control" id="itemAns" placeholder="VD: A"></div>
-                    <button type="submit" class="btn btn-primary btn-block font-weight-bold">Lưu Câu Hỏi</button>
+                    <button type="submit" id="btnSaveItem" class="btn btn-primary btn-block font-weight-bold">Lưu Câu Hỏi</button>
                 </form>
             </div>
         </div>
@@ -283,6 +290,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bundle.min.js"></script>
 <script>
+    // BẮT BUỘC: Thay thế chuỗi này bằng URL Web App thực tế sau khi Deploy trên Google Apps Script
     const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 
     function renderMath() {
@@ -297,6 +305,7 @@
         e.preventDefault();
         let user = $('#adminUser').val(), pass = $('#adminPass').val();
         $('#btnLogin').text("Đang kiểm tra...").prop('disabled', true);
+        
         fetch(`${API_URL}?action=adminLogin&username=${user}&password=${pass}`)
             .then(res => res.json())
             .then(data => {
@@ -304,17 +313,27 @@
                     $('#adminName').text(data.name);
                     $('#adminLoginModal').fadeOut();
                     $('#adminDashboard').fadeIn();
-                    loadCategories(); loadQuestions();
+                    loadCategories(); 
+                    loadQuestions();
                 } else {
                     alert(data.message);
                     $('#btnLogin').text("ĐĂNG NHẬP").prop('disabled', false);
                 }
-            }).catch(err => { alert("Lỗi kết nối: " + err); $('#btnLogin').text("ĐĂNG NHẬP").prop('disabled', false); });
+            }).catch(err => { 
+                alert("Lỗi kết nối API: " + err + "\n(Hãy kiểm tra lại biến API_URL đã đúng chưa!)"); 
+                $('#btnLogin').text("ĐĂNG NHẬP").prop('disabled', false); 
+            });
     }
 
     function switchTab(id, el) {
-        $('.admin-section').hide(); $('#section-' + id).show();
-        $('.sidebar a').removeClass('active'); $(el).addClass('active');
+        $('.admin-section').hide(); 
+        $('#section-' + id).show();
+        $('.sidebar a').removeClass('active'); 
+        $(el).addClass('active');
+    }
+
+    function openItemModal() {
+        $('#itemModal').modal('show');
     }
 
     function recalcMatrix() {
@@ -367,69 +386,144 @@
     }
 
     function saveActiveBlueprint() {
-        let name = "Đề kiểm tra " + $('#matranKyThi').val() + " - " + $('#matranMon').val();
+        let subject = $('#matranMon').val();
+        if(!subject) {
+            alert("Vui lòng chọn môn học trước khi lưu ma trận!");
+            return;
+        }
+        let name = "Đề kiểm tra " + $('#matranKyThi').val() + " - " + subject;
         let payload = {
             action: "saveBlueprint",
             name: name,
-            subject: $('#matranMon').val(),
+            subject: subject,
             grade: $('#matranKhoi').val(),
             examPeriod: $('#matranKyThi').val(),
             duration: $('#matranThoiGian').val(),
-            details: [{chapter: "Chương I", unit: "Khảo sát hàm số", count: 5}]
+            details: [{chapter: "Chương I", unit: "Khảo sát hàm số", count: parseInt($('#total-questions').text()) || 5}]
         };
+        
         fetch(API_URL, {method: 'POST', body: JSON.stringify(payload)})
-            .then(res => res.json()).then(data => alert(data.message));
+            .then(res => res.json())
+            .then(data => { alert(data.message); })
+            .catch(err => alert("Lỗi khi lưu ma trận: " + err));
     }
 
     function saveSubjectCategory(e) {
         e.preventDefault();
-        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addCategory", type: "subject", code: $('#catCode').val(), name: $('#catName').val()})})
-            .then(res => res.json()).then(data => { alert(data.message); loadCategories(); $('#catCode').val(''); $('#catName').val(''); });
+        let code = $('#catCode').val();
+        let name = $('#catName').val();
+        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addCategory", type: "subject", code: code, name: name})})
+            .then(res => res.json())
+            .then(data => { 
+                alert(data.message); 
+                loadCategories(); 
+                $('#catCode').val(''); 
+                $('#catName').val(''); 
+            })
+            .catch(err => alert("Lỗi: " + err));
     }
 
     function saveClassCategory(e) {
         e.preventDefault();
-        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addCategory", type: "class", grade: $('#catGrade').val(), className: $('#catClass').val()})})
-            .then(res => res.json()).then(data => { alert(data.message); loadCategories(); $('#catGrade').val(''); $('#catClass').val(''); });
+        let grade = $('#catGrade').val();
+        let className = $('#catClass').val();
+        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addCategory", type: "class", grade: grade, className: className})})
+            .then(res => res.json())
+            .then(data => { 
+                alert(data.message); 
+                loadCategories(); 
+                $('#catGrade').val(''); 
+                $('#catClass').val(''); 
+            })
+            .catch(err => alert("Lỗi: " + err));
     }
 
     function loadCategories() {
-        fetch(`${API_URL}?action=getCategories`).then(res => res.json()).then(data => {
-            if(data.status === 'success') {
-                let subHtml = '';
-                let subjectOptions = '<option value="">-- Chọn môn học chuẩn --</option>';
-                data.subjects.forEach(item => {
-                    subHtml += `<tr><td><code>${item.code}</code></td><td><strong>${item.name}</strong></td></tr>`;
-                    subjectOptions += `<option value="${item.name}">${item.name} (${item.code})</option>`;
-                });
-                $('#subjectTableBody').html(subHtml || '<tr><td colspan="2" class="text-center text-muted">Chưa có môn học</td></tr>');
-                $('.select-subject').html(subjectOptions);
+        fetch(`${API_URL}?action=getCategories`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    // Đổ bảng Môn học chuẩn (Cột A, B)
+                    let subHtml = '';
+                    let subjectOptions = '<option value="">-- Chọn môn học chuẩn --</option>';
+                    if(data.subjects && data.subjects.length > 0) {
+                        data.subjects.forEach(item => {
+                            if(item.name) {
+                                subHtml += `<tr><td><code>${item.code}</code></td><td><strong>${item.name}</strong></td></tr>`;
+                                subjectOptions += `<option value="${item.name}">${item.name} (${item.code})</option>`;
+                            }
+                        });
+                    } else {
+                        subHtml = '<tr><td colspan="2" class="text-center text-muted">Chưa có môn học nào</td></tr>';
+                    }
+                    $('#subjectTableBody').html(subHtml);
+                    $('.select-subject').html(subjectOptions);
 
-                let classHtml = '';
-                data.classes.forEach(item => {
-                    classHtml += `<tr><td><strong>${item.grade}</strong></td><td>${item.className}</td></tr>`;
-                });
-                $('#classTableBody').html(classHtml || '<tr><td colspan="2" class="text-center text-muted">Chưa có lớp học</td></tr>');
-            }
-        });
+                    // Đổ bảng Khối & Lớp học (Cột C, D)
+                    let classHtml = '';
+                    if(data.classes && data.classes.length > 0) {
+                        data.classes.forEach(item => {
+                            if(item.grade || item.className) {
+                                classHtml += `<tr><td><strong>${item.grade}</strong></td><td>${item.className}</td></tr>`;
+                            }
+                        });
+                    } else {
+                        classHtml = '<tr><td colspan="2" class="text-center text-muted">Chưa có lớp học nào</td></tr>';
+                    }
+                    $('#classTableBody').html(classHtml);
+                }
+            })
+            .catch(err => console.error("Lỗi tải danh mục:", err));
     }
 
     function saveItem(e) {
         e.preventDefault();
-        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addItemFlexible", subject: $('#itemSub').val(), grade: $('#itemGr').val(), level: $('#itemLev').val(), questionType: $('#itemType').val(), question: $('#itemQ').val(), correctAnswer: $('#itemAns').val()})})
-            .then(res => res.json()).then(data => { alert(data.message); $('#itemModal').modal('hide'); loadQuestions(); renderMath(); });
+        let payload = {
+            action: "addItemFlexible",
+            subject: $('#itemSub').val(),
+            grade: $('#itemGr').val(),
+            level: $('#itemLev').val(),
+            questionType: $('#itemType').val(),
+            question: $('#itemQ').val(),
+            correctAnswer: $('#itemAns').val()
+        };
+
+        $('#btnSaveItem').text("Đang lưu...").prop('disabled', true);
+
+        fetch(API_URL, {method: 'POST', body: JSON.stringify(payload)})
+            .then(res => res.json())
+            .then(data => { 
+                alert(data.message); 
+                $('#itemModal').modal('hide'); 
+                $('#itemQ').val('');
+                $('#itemAns').val('');
+                $('#btnSaveItem').text("Lưu Câu Hỏi").prop('disabled', false);
+                loadQuestions(); 
+            })
+            .catch(err => { 
+                alert("Lỗi khi lưu câu hỏi: " + err); 
+                $('#btnSaveItem').text("Lưu Câu Hỏi").prop('disabled', false); 
+            });
     }
 
     function loadQuestions() {
-        fetch(`${API_URL}?action=getQuestions`).then(res => res.json()).then(data => {
-            if(data.status === 'success') {
-                let html = ''; data.data.forEach(item => {
-                    html += `<tr><td>${item.id}</td><td>${item.subject}</td><td>Khối ${item.grade}</td><td><span class="badge badge-secondary">${item.type}</span></td><td>${item.question}</td><td>${item.level}</td></tr>`;
-                });
-                $('#questionTableBody').html(html);
-                renderMath();
-            }
-        });
+        fetch(`${API_URL}?action=getQuestions`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    let html = ''; 
+                    if(data.data && data.data.length > 0) {
+                        data.data.forEach(item => {
+                            html += `<tr><td>${item.id}</td><td>${item.subject}</td><td>Khối ${item.grade}</td><td><span class="badge badge-secondary">${item.type}</span></td><td>${item.question}</td><td>${item.level}</td></tr>`;
+                        });
+                    } else {
+                        html = '<tr><td colspan="6" class="text-center text-muted">Chưa có câu hỏi nào trong ngân hàng.</td></tr>';
+                    }
+                    $('#questionTableBody').html(html);
+                    renderMath();
+                }
+            })
+            .catch(err => console.error("Lỗi tải câu hỏi:", err));
     }
 </script>
 </body>
