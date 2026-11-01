@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Đánh Giá Năng Lực Học Sinh - Trực Tuyến</title>
+    <title>Cổng Học Liệu Số - Kiểm Tra Đánh Giá Năng Lực</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -34,11 +34,11 @@
     <div class="login-card">
         <div class="text-center mb-4">
             <i class="fas fa-graduation-cap text-primary fa-3x mb-2"></i>
-            <h4 class="font-weight-bold text-dark">K-12 Assessment Platform</h4>
-            <p class="text-muted small">Cổng Đánh Giá Năng Lực Trực Tuyến</p>
+            <h4 class="font-weight-bold text-dark">Cổng Học Liệu Số K-12</h4>
+            <p class="text-muted small">Đăng nhập phòng thi trực tuyến</p>
         </div>
         <form onsubmit="handleStudentLogin(event)">
-            <div class="form-group"><label class="small font-weight-bold">Số Báo Danh (SBD)</label><input type="text" class="form-control" id="loginSBD" required placeholder="Nhập SBD của bạn"></div>
+            <div class="form-group"><label class="small font-weight-bold">Số Báo Danh (SBD)</label><input type="text" class="form-control" id="loginSBD" required placeholder="Nhập SBD..."></div>
             <button type="submit" id="btnLogin" class="btn btn-primary btn-block font-weight-bold py-2 mt-4">VÀO PHÒNG THI</button>
         </form>
     </div>
@@ -69,13 +69,13 @@
     <div class="row">
         <div class="col-md-5">
             <div class="passage-box">
-                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU / CÔNG THỨC</h6>
+                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU ĐỌC HIỂU</h6>
                 <div id="examPassage" class="text-justify mt-3">Đang tải ngữ liệu...</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="question-box">
-                <h6 class="font-weight-bold text-dark mb-3" id="currentQTitle">Câu 1</h6>
+                <h6 class="font-weight-bold text-dark mb-3" id="currentQTitle">Câu hỏi</h6>
                 <div id="examQuestionContent">Đang tải câu hỏi...</div>
             </div>
         </div>
@@ -127,12 +127,12 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success' && data.data.length > 0) {
-                    $('#examPassage').html(data.data[0].passage || "Không có ngữ liệu đọc hiểu.");
+                    $('#examPassage').html(data.data[0].passage || "Không có ngữ liệu.");
                     $('#examQuestionContent').html(data.data[0].question);
                     $('#questionPalette').html('<button class="btn btn-light btn-current">1</button>');
                     renderMathStudent();
                 } else {
-                    $('#examQuestionContent').html("<div class='alert alert-warning'>Chưa có câu hỏi cho khối lớp này trong ngân hàng!</div>");
+                    $('#examQuestionContent').html("<div class='alert alert-warning'>Chưa có câu hỏi cho khối lớp này!</div>");
                 }
             });
     }
