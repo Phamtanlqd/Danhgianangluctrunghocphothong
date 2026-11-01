@@ -1,7 +1,3 @@
-/* ==========================================================================
-   NATIONAL COMPETENCY ASSESSMENT PLATFORM - MAIN STYLESHEET
-   ========================================================================== */
-
 :root {
     --primary-color: #1e3c72;
     --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -18,11 +14,9 @@ body {
     background-color: var(--light-bg);
     color: var(--text-primary);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
 }
 
-/* Sidebar Quản Trị */
 .sidebar {
     min-height: 100vh;
     background: var(--primary-gradient);
@@ -30,97 +24,54 @@ body {
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     padding-top: 1.5rem;
 }
-
 .sidebar h4 {
-    font-size: 1.15rem;
-    font-weight: 700;
+    font-size: 1.15rem; font-weight: 700;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
+    padding-bottom: 1rem; margin-bottom: 1.5rem;
 }
-
 .sidebar .list-group-item-action {
     color: rgba(255, 255, 255, 0.8) !important;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 18px;
-    margin-bottom: 6px;
-    font-size: 0.95rem;
+    background: transparent; border: none; border-radius: 8px;
+    padding: 12px 18px; margin-bottom: 6px; font-size: 0.95rem;
     transition: all 0.2s ease-in-out;
 }
-
 .sidebar .list-group-item-action:hover,
 .sidebar .list-group-item-action.active {
     color: #ffffff !important;
     background: rgba(255, 255, 255, 0.2) !important;
-    font-weight: 600;
-    transform: translateX(4px);
+    font-weight: 600; transform: translateX(4px);
 }
-
-.main-content {
-    padding: 2rem;
-}
+.main-content { padding: 2rem; }
 
 .card {
-    border: none;
-    border-radius: 12px;
+    border: none; border-radius: 12px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 125, 0.08);
-    background-color: #ffffff;
-    margin-bottom: 1.5rem;
+    background-color: #ffffff; margin-bottom: 1.5rem;
 }
-
 .card-header {
-    background-color: #ffffff;
-    border-bottom: 1px solid var(--card-border);
-    font-weight: 700;
-    color: var(--primary-color);
-    padding: 1rem 1.25rem;
+    background-color: #ffffff; border-bottom: 1px solid var(--card-border);
+    font-weight: 700; color: var(--primary-color); padding: 1rem 1.25rem;
 }
 
-/* Exam Header & Layout Thi */
 .exam-header {
-    background: var(--primary-gradient);
-    color: #ffffff;
-    padding: 12px 24px;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 1030;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    background: var(--primary-gradient); color: #ffffff;
+    padding: 12px 24px; position: fixed; top: 0; left: 0; right: 0;
+    z-index: 1030; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
-
 .timer-box {
-    background-color: var(--danger-color);
-    color: #ffffff;
-    padding: 6px 18px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 1.1rem;
+    background-color: var(--danger-color); color: #ffffff;
+    padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 1.1rem;
 }
-
 .passage-box, .question-box {
-    background: #ffffff;
-    border: 1px solid var(--card-border);
-    border-radius: 10px;
-    padding: 20px;
-    height: calc(100vh - 110px);
-    overflow-y: auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background: #ffffff; border: 1px solid var(--card-border);
+    border-radius: 10px; padding: 20px; height: calc(100vh - 110px);
+    overflow-y: auto; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
-
-.passage-box {
-    border-left: 4px solid var(--secondary-color);
-}
-
+.passage-box { border-left: 4px solid var(--secondary-color); }
 .question-palette button {
-    width: 40px;
-    height: 40px;
-    margin: 4px;
-    font-weight: 700;
-    border-radius: 8px;
-    border: 1px solid var(--card-border);
+    width: 40px; height: 40px; margin: 4px; font-weight: 700;
+    border-radius: 8px; border: 1px solid var(--card-border);
 }
-
 .btn-answered { background-color: var(--success-color) !important; color: #fff !important; }
 .btn-flagged { background-color: var(--warning-color) !important; color: #000 !important; }
 .btn-current { border: 2px solid var(--secondary-color) !important; }
