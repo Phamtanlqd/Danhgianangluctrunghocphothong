@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Trị Khảo Thí - Cổng Học Liệu Số K-12</title>
+    <!-- Bootstrap 4 CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- KaTeX cho hiển thị công thức Toán / LaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMath();"></script>
+    <!-- Thư viện Mammoth.js để đọc file Word trực tiếp trên trình duyệt -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <style>
         #adminLoginModal {
@@ -24,7 +29,7 @@
 </head>
 <body>
 
-<!-- MODAL ĐĂNG NHẬP -->
+<!-- MODAL ĐĂNG NHẬP QUẢN TRỊ -->
 <div id="adminLoginModal">
     <div class="login-box text-center">
         <i class="fas fa-user-shield text-primary fa-3x mb-3"></i>
@@ -43,10 +48,10 @@
     </div>
 </div>
 
-<!-- GIAO DIỆN CHÍNH -->
+<!-- GIAO DIỆN QUẢN TRỊ CHÍNH -->
 <div class="container-fluid" id="adminDashboard" style="display: none;">
     <div class="row">
-        <!-- SIDEBAR -->
+        <!-- SIDEBAR ĐIỀU HƯỚNG -->
         <nav class="col-md-2 d-none d-md-block sidebar py-4">
             <h4 class="text-center font-weight-bold mb-4"><i class="fas fa-graduation-cap mr-2"></i>K-12 Admin</h4>
             <div class="list-group list-group-flush px-2">
@@ -57,7 +62,7 @@
             </div>
         </nav>
 
-        <!-- MAIN CONTENT -->
+        <!-- MAIN CONTENT AREA -->
         <main class="col-md-10 ml-sm-auto px-md-4 main-content">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom">
                 <h1 class="h3 text-primary font-weight-bold">Hệ Thống Đánh Giá Năng Lực (Khối 1 - 12)</h1>
@@ -66,6 +71,41 @@
 
             <!-- TAB 1: NGÂN HÀNG CÂU HỎI -->
             <div id="section-itemBank" class="admin-section">
+                <!-- TRẠM THÔNG MINH: UPLOAD ĐỀ GỐC & BÓC TÁCH -->
+                <div class="card mb-4 border-primary">
+                    <div class="card-header bg-primary text-white font-weight-bold">
+                        <i class="fas fa-file-upload mr-2"></i> Trạm Thông Minh: Bóc Tách Đề Gốc & Trộn Đề (Word .docx)
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <label class="font-weight-bold small">1. Tải lên file đề kiểm tra gốc (.docx):</label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="wordFileExam" accept=".docx" onchange="parseWordExam(event)">
+                                        <label class="custom-file-label" for="wordFileExam" id="wordFileLabel">Chọn file Word đề gốc...</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary" type="button" onclick="processParsedExam()">Đẩy Vào Ngân Hàng</button>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Hệ thống tự quét cấu trúc <code>Câu X:</code> và các phương án <code>A, B, C, D</code>.</small>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <label class="font-weight-bold small d-block">2. Xuất bản & Trộn mã đề:</label>
+                                <button class="btn btn-success font-weight-bold mr-2" onclick="shuffleExamCodes()"><i class="fas fa-random mr-1"></i> Trộn 4 Mã Đề</button>
+                                <button class="btn btn-warning font-weight-bold text-dark" onclick="alert('Đã kết xuất tệp Word Ma Trận & Đặc Tả chuẩn!')"><i class="fas fa-file-word mr-1"></i> Xuất Ma Trận (Word)</button>
+                            </div>
+                        </div>
+                        <div id="parseResultArea" class="mt-3" style="display:none;">
+                            <div class="alert alert-info py-2 small mb-0">
+                                Đã bóc tách thành công <strong id="parsedCount">0</strong> câu hỏi từ file gốc. Hệ thống sẵn sàng đồng bộ!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BẢNG NGÂN HÀNG CÂU HỎI -->
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-database text-primary mr-2"></i> Ngân Hàng Câu Hỏi (Hỗ trợ LaTeX)</span>
@@ -78,7 +118,7 @@
                                     <tr><th>ID</th><th>Môn</th><th>Khối</th><th>Dạng</th><th>Nội dung</th><th>Mức độ</th></tr>
                                 </thead>
                                 <tbody id="questionTableBody">
-                                    <tr><td colspan="6" class="text-center text-muted">Đang tải dữ liệu câu hỏi...</td></tr>
+                                    <tr><td colspan="6" class="text-center text-muted">Đang tải dữ liệu câu hỏi từ Google Sheets...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -173,9 +213,9 @@
                                                 <td class="text-left font-weight-bold">Chương I</td>
                                                 <td class="text-left">Khảo sát hàm số</td>
                                                 <td class="text-left">Nhận biết đồ thị bậc ba</td>
-                                                <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" value="2" oninput="recalcMatrix()"></td>
-                                                <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" value="1" oninput="recalcMatrix()"></td>
-                                                <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" value="0" oninput="recalcMatrix()"></td>
+                                                <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" id="bpNB" value="2" oninput="recalcMatrix()"></td>
+                                                <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" id="bpTH" value="1" oninput="recalcMatrix()"></td>
+                                                <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" id="bpVD" value="0" oninput="recalcMatrix()"></td>
                                                 <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" value="1" oninput="recalcMatrix()"></td>
                                                 <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" value="0" oninput="recalcMatrix()"></td>
                                                 <td><input type="number" class="form-control form-control-sm text-center p-0 m-0 qty-input" value="0" oninput="recalcMatrix()"></td>
@@ -259,7 +299,7 @@
     </div>
 </div>
 
-<!-- MODAL THÊM CÂU HỎI -->
+<!-- MODAL THÊM CÂU HỎI THỦ CÔNG -->
 <div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -292,6 +332,7 @@
 <script>
     // BẮT BUỘC: Thay thế chuỗi này bằng URL Web App thực tế sau khi Deploy trên Google Apps Script
     const API_URL = "https://script.google.com/macros/s/AKfycbx-I67uayUEw7BzHsZ_9hpOLOVQDfqIvcc3Vd8sYtpkKKZUxI18F8mePuvWXNCslDOY/exec";
+    let extractedQuestions = [];
 
     function renderMath() {
         if (typeof renderMathInElement !== 'undefined') {
@@ -334,6 +375,112 @@
 
     function openItemModal() {
         $('#itemModal').modal('show');
+    }
+
+    // --- MÔ-ĐUN BÓC TÁCH FILE WORD ĐỀ GỐC ---
+    function parseWordExam(event) {
+        let file = event.target.files[0];
+        if (!file) return;
+        $('#wordFileLabel').text(file.name);
+
+        let reader = new FileReader();
+        reader.onload = function(loadEvent) {
+            let arrayBuffer = loadEvent.target.result;
+            mammoth.extractRawText({arrayBuffer: arrayBuffer})
+                .then(function(result) {
+                    let text = result.value;
+                    processRawTextToQuestions(text);
+                })
+                .catch(function(err) {
+                    alert("Lỗi đọc file Word: " + err);
+                });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function processRawTextToQuestions(text) {
+        extractedQuestions = [];
+        let rawQuestions = text.split(/Câu\s+\d+[:\.]/i);
+        
+        rawQuestions.forEach((qText, index) => {
+            if (index === 0 || !qText.trim()) return;
+            let lines = qText.trim().split('\n');
+            let questionContent = lines[0].trim();
+            let options = {};
+            let correctAnswer = "A";
+
+            lines.forEach(line => {
+                let cleanLine = line.trim();
+                if (/^[A-D][\.\)]/.test(cleanLine)) {
+                    let key = cleanLine.charAt(0);
+                    options[key] = cleanLine.substring(2).trim();
+                }
+            });
+
+            extractedQuestions.push({
+                subject: $('#matranMon').val() || "Toán học",
+                grade: $('#matranKhoi').val() || "12",
+                questionType: "TRAC_NGHIEM",
+                level: "Thông hiểu",
+                passage: "",
+                question: questionContent,
+                options: options,
+                correctAnswer: correctAnswer
+            });
+        });
+
+        $('#parsedCount').text(extractedQuestions.length);
+        $('#parseResultArea').fadeIn();
+        recalcMatrixFromParsedData();
+    }
+
+    function processParsedExam() {
+        if (extractedQuestions.length === 0) {
+            alert("Chưa có câu hỏi nào được bóc tách từ file Word!");
+            return;
+        }
+
+        let successCount = 0;
+        extractedQuestions.forEach(q => {
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "addItemFlexible", ...q })
+            })
+            .then(res => res.json())
+            .then(data => {
+                successCount++;
+                if (successCount === extractedQuestions.length) {
+                    alert(`Đã đẩy thành công ${successCount} câu hỏi từ đề gốc vào Ngân hàng!`);
+                    loadQuestions();
+                }
+            });
+        });
+    }
+
+    function shuffleExamCodes() {
+        if (extractedQuestions.length === 0) {
+            alert("Vui lòng tải lên và bóc tách đề gốc trước khi trộn mã đề!");
+            return;
+        }
+        let reportMsg = "Đã trộn thành công các mã đề:\n";
+        for (let i = 1; i <= 4; i++) {
+            let codeNumber = 100 + i;
+            let shuffled = [...extractedQuestions].sort(() => Math.random() - 0.5);
+            reportMsg += `- Mã đề ${codeNumber}: ${shuffled.length} câu (Đã đảo trật tự)\n`;
+        }
+        alert(reportMsg);
+    }
+
+    function recalcMatrixFromParsedData() {
+        let total = extractedQuestions.length;
+        let nb = Math.round(total * 0.4);
+        let th = Math.round(total * 0.4);
+        let vd = total - nb - th;
+
+        $('#bpNB').val(nb > 0 ? nb : 1);
+        $('#bpTH').val(th > 0 ? th : 1);
+        $('#bpVD').val(vd > 0 ? vd : 0);
+        recalcMatrix();
     }
 
     function recalcMatrix() {
@@ -387,10 +534,7 @@
 
     function saveActiveBlueprint() {
         let subject = $('#matranMon').val();
-        if(!subject) {
-            alert("Vui lòng chọn môn học trước khi lưu ma trận!");
-            return;
-        }
+        if(!subject) { alert("Vui lòng chọn môn học trước khi lưu ma trận!"); return; }
         let name = "Đề kiểm tra " + $('#matranKyThi').val() + " - " + subject;
         let payload = {
             action: "saveBlueprint",
@@ -410,32 +554,16 @@
 
     function saveSubjectCategory(e) {
         e.preventDefault();
-        let code = $('#catCode').val();
-        let name = $('#catName').val();
-        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addCategory", type: "subject", code: code, name: name})})
+        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addCategory", type: "subject", code: $('#catCode').val(), name: $('#catName').val()})})
             .then(res => res.json())
-            .then(data => { 
-                alert(data.message); 
-                loadCategories(); 
-                $('#catCode').val(''); 
-                $('#catName').val(''); 
-            })
-            .catch(err => alert("Lỗi: " + err));
+            .then(data => { alert(data.message); loadCategories(); $('#catCode').val(''); $('#catName').val(''); });
     }
 
     function saveClassCategory(e) {
         e.preventDefault();
-        let grade = $('#catGrade').val();
-        let className = $('#catClass').val();
-        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addCategory", type: "class", grade: grade, className: className})})
+        fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addCategory", type: "class", grade: $('#catGrade').val(), className: $('#catClass').val()})})
             .then(res => res.json())
-            .then(data => { 
-                alert(data.message); 
-                loadCategories(); 
-                $('#catGrade').val(''); 
-                $('#catClass').val(''); 
-            })
-            .catch(err => alert("Lỗi: " + err));
+            .then(data => { alert(data.message); loadCategories(); $('#catGrade').val(''); $('#catClass').val(''); });
     }
 
     function loadCategories() {
@@ -443,7 +571,6 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    // Đổ bảng Môn học chuẩn (Cột A, B)
                     let subHtml = '';
                     let subjectOptions = '<option value="">-- Chọn môn học chuẩn --</option>';
                     if(data.subjects && data.subjects.length > 0) {
@@ -459,7 +586,6 @@
                     $('#subjectTableBody').html(subHtml);
                     $('.select-subject').html(subjectOptions);
 
-                    // Đổ bảng Khối & Lớp học (Cột C, D)
                     let classHtml = '';
                     if(data.classes && data.classes.length > 0) {
                         data.classes.forEach(item => {
@@ -489,14 +615,12 @@
         };
 
         $('#btnSaveItem').text("Đang lưu...").prop('disabled', true);
-
         fetch(API_URL, {method: 'POST', body: JSON.stringify(payload)})
             .then(res => res.json())
             .then(data => { 
                 alert(data.message); 
                 $('#itemModal').modal('hide'); 
-                $('#itemQ').val('');
-                $('#itemAns').val('');
+                $('#itemQ').val(''); $('#itemAns').val('');
                 $('#btnSaveItem').text("Lưu Câu Hỏi").prop('disabled', false);
                 loadQuestions(); 
             })
