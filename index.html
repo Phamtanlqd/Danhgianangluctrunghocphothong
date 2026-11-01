@@ -54,7 +54,7 @@
     </div>
 </div>
 
-<!-- CẢNH BÁO CHỐNG GIAN LẬN -->
+<!-- MÀN HÌNH CẢNH BÁO CHỐNG GIAN LẬN -->
 <div id="cheatWarning">
     <div class="p-4">
         <i class="fas fa-exclamation-triangle text-warning display-1 mb-3"></i>
@@ -96,7 +96,7 @@
                 </div>
                 <div id="examQuestionContent">Đang tải câu hỏi...</div>
                 
-                <!-- Nút điều hướng câu hỏi trước / sau -->
+                <!-- Nút điều hướng câu hỏi -->
                 <div class="mt-4 pt-3 border-top d-flex justify-content-between">
                     <button class="btn btn-outline-secondary btn-sm font-weight-bold px-3" onclick="prevQuestion()"><i class="fas fa-chevron-left mr-1"></i> Câu trước</button>
                     <button class="btn btn-outline-primary btn-sm font-weight-bold px-3" onclick="nextQuestion()">Câu sau <i class="fas fa-chevron-right ml-1"></i></button>
@@ -123,7 +123,7 @@
     let currentStudent = null;
     let examQuestions = [];
     let currentIndex = 0;
-    let studentAnswers = {}; // Lưu đáp án thí sinh đã chọn
+    let studentAnswers = {};
     let cheatViolations = 0;
     let timerInterval = null;
 
@@ -150,13 +150,12 @@
                     $('#examHeader').show(); 
                     $('#examMainContent').show();
                     
-                    // Kích hoạt chế độ toàn màn hình phòng thi
                     if (document.documentElement.requestFullscreen) { 
                         document.documentElement.requestFullscreen().catch(err=>{}); 
                     }
                     
                     loadExamQuestions();
-                    startTimer(45 * 60); // 45 phút làm bài
+                    startTimer(45 * 60);
                 } else {
                     alert(data.message);
                     $('#btnLogin').text("VÀO PHÒNG THI").prop('disabled', false);
@@ -197,25 +196,12 @@
 
         let htmlContent = `<div class="mb-3 font-weight-bold text-dark" style="font-size: 1.02rem;">${q.question}</div>`;
 
-        // Phân loại render theo định dạng câu hỏi (TRAC_NGHIEM, DUNG_SAI, TRA_LOI_NGAN)
-        if (q.type === 'TRAC_NGHIEM' || !q.type) {
-            if (q.options && typeof q.options === 'object') {
-                htmlContent += `<div class="list-options mt-3">`;
-                for (let key in q.options) {
-                    let isChecked = studentAnswers[currentIndex] === key ? 'checked' : '';
-                    htmlContent += `
-                        <div class="custom-control custom-radio mb-2 p-2 bg-light rounded border">
-                            <input type="radio" id="opt_${key}" name="studentAnswer" class="custom-control-input" value="${key}" ${isChecked} onclick="saveAnswer('${key}')">
-                            <label class="custom-control-label font-weight-normal ml-2" for="opt_${key}" style="cursor: pointer; width: 100%;">
-                                <strong class="text-primary mr-2">${key}.</strong> ${q.options[key]}
-                            </label>
-                        </div>`;
-                }
-                htmlContent += `</div>`;
-            }
-        } 
-        else if (q.type === 'DUNG_SAI') {
-            let subStatements = q.options && typeof q.options === 'object' ? q.options : {
+        // KIỂM TRA DẠNG CÂU HỎI THÔNG MINH
+        let hasOptions = q.options && typeof q.options === 'object' && Object.keys(q.options).length > 0;
+
+        if (q.type === 'DUNG_SAI') {
+            // Dạng Đúng / Sai (4 ý a, b, c, d)
+            let subStatements = hasOptions ? q.options : {
                 "a": "Nhận định thứ nhất.", "b": "Nhận định thứ hai.", "c": "Nhận định thứ ba.", "d": "Nhận định thứ tư."
             };
             
@@ -236,12 +222,28 @@
             }
             htmlContent += `</tbody></table></div>`;
         } 
+        else if (hasOptions && q.type !== 'TRA_LOI_NGAN') {
+            // Dạng Trắc nghiệm nhiều lựa chọn (A, B, C, D)
+            htmlContent += `<div class="list-options mt-3">`;
+            for (let key in q.options) {
+                let isChecked = studentAnswers[currentIndex] === key ? 'checked' : '';
+                htmlContent += `
+                    <div class="custom-control custom-radio mb-2 p-2 bg-light rounded border">
+                        <input type="radio" id="opt_${key}" name="studentAnswer" class="custom-control-input" value="${key}" ${isChecked} onclick="saveAnswer('${key}')">
+                        <label class="custom-control-label font-weight-normal ml-2" for="opt_${key}" style="cursor: pointer; width: 100%;">
+                            <strong class="text-primary mr-2">${key}.</strong> ${q.options[key]}
+                        </label>
+                    </div>`;
+            }
+            htmlContent += `</div>`;
+        } 
         else {
+            // Dạng Trả lời ngắn / Điền số / Tự luận (Khi không có options)
             let currentVal = studentAnswers[currentIndex] || '';
             htmlContent += `
                 <div class="mt-4">
-                    <label class="small font-weight-bold text-muted"><i class="fas fa-pen-nib mr-1"></i> Nhập kết quả trả lời ngắn:</label>
-                    <input type="text" class="form-control form-control-lg text-primary font-weight-bold" placeholder="Nhập đáp số..." id="shortAnswerInput" value="${currentVal}" oninput="saveShortAnswer(this.value)">
+                    <label class="small font-weight-bold text-muted"><i class="fas fa-pen-nib mr-1"></i> Nhập kết quả trả lời ngắn (làm tròn đến hàng phần trăm nếu là số):</label>
+                    <input type="text" class="form-control form-control-lg text-primary font-weight-bold" placeholder="Nhập đáp số (VD: 0,08)..." id="shortAnswerInput" value="${currentVal}" oninput="saveShortAnswer(this.value)">
                 </div>`;
         }
 
@@ -291,13 +293,11 @@
         $('.question-palette button').removeClass('btn-primary btn-outline-secondary btn-success').addClass('btn-outline-secondary');
         $(`#palette_${currentIndex}`).removeClass('btn-outline-secondary').addClass('btn-primary');
         
-        // Đánh dấu các câu đã làm
         for(let i in studentAnswers) {
-            if(studentAnswers[i] && Object.keys(studentAnswers[i]).length > 0) {
+            if(studentAnswers[i] && (typeof studentAnswers[i] === 'string' && studentAnswers[i] !== '' || Object.keys(studentAnswers[i]).length > 0)) {
                 $(`#palette_${i}`).removeClass('btn-outline-secondary btn-primary').addClass('btn-success text-white');
             }
         }
-        // Giữ active cho câu hiện tại
         $(`#palette_${currentIndex}`).removeClass('btn-success btn-outline-secondary').addClass('btn-primary text-white');
     }
 
@@ -308,7 +308,7 @@
         }
     }
 
-    // Cơ chế chống gian lận (Phát hiện rời màn hình / tab)
+    // Chống gian lận khi tab bị ẩn
     document.addEventListener("visibilitychange", function() {
         if (document.hidden && $('#examMainContent').is(':visible')) { 
             triggerAntiCheat(); 
@@ -352,7 +352,6 @@
         if(!confirm("Bạn có chắc chắn muốn nộp bài thi không?")) return;
         clearInterval(timerInterval);
 
-        // Tính toán giả định số câu đúng dựa trên số câu đã trả lời để lưu kết quả
         let answeredCount = Object.keys(studentAnswers).length;
         let finalScore = ((answeredCount / (examQuestions.length || 1)) * 10).toFixed(2);
 
