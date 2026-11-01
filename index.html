@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cổng Học Liệu Số - Kiểm Tra Đánh Giá Năng Lực</title>
+    <!-- Bootstrap 4 CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- KaTeX cho hiển thị công thức Toán / LaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathStudent();"></script>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        body { user-select: none; -webkit-user-select: none; }
+        body { user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; }
         #loginScreen {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -26,10 +29,14 @@
             background: rgba(0,0,0,0.88); color: white; z-index: 9999;
             display: none; justify-content: center; align-items: center; text-align: center;
         }
+        .question-palette button {
+            width: 40px; height: 40px; margin: 4px; font-weight: bold; border-radius: 8px;
+        }
     </style>
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
+<!-- MÀN HÌNH ĐĂNG NHẬP PHÒNG THI -->
 <div id="loginScreen">
     <div class="login-card">
         <div class="text-center mb-4">
@@ -38,22 +45,27 @@
             <p class="text-muted small">Đăng nhập phòng thi trực tuyến</p>
         </div>
         <form onsubmit="handleStudentLogin(event)">
-            <div class="form-group"><label class="small font-weight-bold">Số Báo Danh (SBD)</label><input type="text" class="form-control" id="loginSBD" required placeholder="Nhập SBD..."></div>
+            <div class="form-group">
+                <label class="small font-weight-bold">Số Báo Danh (SBD)</label>
+                <input type="text" class="form-control" id="loginSBD" required placeholder="Nhập SBD của bạn (VD: 10001)...">
+            </div>
             <button type="submit" id="btnLogin" class="btn btn-primary btn-block font-weight-bold py-2 mt-4">VÀO PHÒNG THI</button>
         </form>
     </div>
 </div>
 
+<!-- CẢNH BÁO CHỐNG GIAN LẬN -->
 <div id="cheatWarning">
     <div class="p-4">
         <i class="fas fa-exclamation-triangle text-warning display-1 mb-3"></i>
         <h2 class="text-danger font-weight-bold">CẢNH BÁO VI PHẠM QUY CHẾ THI!</h2>
-        <p class="lead">Bạn vừa rời khỏi màn hình bài thi.</p>
+        <p class="lead">Bạn vừa rời khỏi màn hình hoặc chuyển thẻ (tab) trình duyệt.</p>
         <p>Số lần vi phạm: <strong id="cheatCount" class="text-warning">1</strong> / 3</p>
-        <button class="btn btn-primary btn-lg mt-3" onclick="resumeExam()">Tiếp tục làm bài</button>
+        <button class="btn btn-primary btn-lg mt-3" onclick="resumeExam()">Tôi đã hiểu, tiếp tục làm bài</button>
     </div>
 </div>
 
+<!-- HEADER BÀI THI -->
 <div class="exam-header d-flex justify-content-between align-items-center" id="examHeader" style="display:none !important;">
     <div>
         <h5 class="m-0 font-weight-bold"><i class="fas fa-file-alt mr-2"></i> Bài Kiểm Tra Đánh Giá Năng Lực</h5>
@@ -61,28 +73,43 @@
     </div>
     <div class="d-flex align-items-center">
         <div class="timer-box mr-3"><i class="fas fa-clock mr-1"></i> <span id="timer">45:00</span></div>
-        <button class="btn btn-success btn-sm font-weight-bold" onclick="submitExam()"><i class="fas fa-paper-plane mr-1"></i> NỘP BÀI</button>
+        <button class="btn btn-success btn-sm font-weight-bold px-3 py-2" onclick="submitExam()"><i class="fas fa-paper-plane mr-1"></i> NỘP BÀI</button>
     </div>
 </div>
 
-<div class="container-fluid main-content" id="examMainContent" style="display:none; margin-top: 70px;">
+<!-- NỘI DUNG CHÍNH PHÒNG THI -->
+<div class="container-fluid main-content" id="examMainContent" style="display:none; margin-top: 75px;">
     <div class="row">
-        <div class="col-md-5">
-            <div class="passage-box">
-                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU ĐỌC HIỂU</h6>
-                <div id="examPassage" class="text-justify mt-3">Đang tải ngữ liệu...</div>
-            </div>
-        </div>
+        <!-- Cột 1: Ngữ liệu đọc hiểu -->
         <div class="col-md-4">
-            <div class="question-box">
-                <h6 class="font-weight-bold text-dark mb-3" id="currentQTitle">Câu hỏi</h6>
-                <div id="examQuestionContent">Đang tải câu hỏi...</div>
+            <div class="passage-box">
+                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU ĐỌC HIỂU / DỮ LIỆU CHUNG</h6>
+                <div id="examPassage" class="text-justify mt-3 text-secondary">Đang tải ngữ liệu...</div>
             </div>
         </div>
+        <!-- Cột 2: Nội dung câu hỏi & các phương án -->
+        <div class="col-md-5">
+            <div class="question-box">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h6 class="font-weight-bold text-primary m-0" id="currentQHeading">Câu hỏi 1</h6>
+                    <span class="badge badge-info" id="currentQLevel">Mức độ</span>
+                </div>
+                <div id="examQuestionContent">Đang tải câu hỏi...</div>
+                
+                <!-- Nút điều hướng câu hỏi trước / sau -->
+                <div class="mt-4 pt-3 border-top d-flex justify-content-between">
+                    <button class="btn btn-outline-secondary btn-sm font-weight-bold px-3" onclick="prevQuestion()"><i class="fas fa-chevron-left mr-1"></i> Câu trước</button>
+                    <button class="btn btn-outline-primary btn-sm font-weight-bold px-3" onclick="nextQuestion()">Câu sau <i class="fas fa-chevron-right ml-1"></i></button>
+                </div>
+            </div>
+        </div>
+        <!-- Cột 3: Danh sách câu hỏi (Palette) -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white font-weight-bold"><i class="fas fa-th mr-1"></i> Danh sách câu hỏi</div>
-                <div class="card-body"><div class="question-palette d-flex flex-wrap" id="questionPalette"></div></div>
+                <div class="card-body">
+                    <div class="question-palette d-flex flex-wrap justify-content-start" id="questionPalette"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -90,9 +117,15 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbx-I67uayUEw7BzHsZ_9hpOLOVQDfqIvcc3Vd8sYtpkKKZUxI18F8mePuvWXNCslDOY/exec";
+    // BẮT BUỘC: Thay thế đường dẫn này bằng Web App URL thực tế của bạn sau khi Deploy trên Google Apps Script
+    const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+    
     let currentStudent = null;
+    let examQuestions = [];
+    let currentIndex = 0;
+    let studentAnswers = {}; // Lưu đáp án thí sinh đã chọn
     let cheatViolations = 0;
+    let timerInterval = null;
 
     function renderMathStudent() {
         if (typeof renderMathInElement !== 'undefined') {
@@ -104,22 +137,35 @@
 
     function handleStudentLogin(e) {
         e.preventDefault();
-        let sbd = $('#loginSBD').val();
+        let sbd = $('#loginSBD').val().trim();
         $('#btnLogin').text("Đang kiểm tra...").prop('disabled', true);
+        
         fetch(`${API_URL}?action=studentLogin&sbd=${sbd}`)
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
                     currentStudent = data.student;
                     $('#displayStudentInfo').text(`Thí sinh: ${currentStudent.name} - SBD: ${currentStudent.sbd} (Khối: ${currentStudent.grade})`);
-                    $('#loginScreen').fadeOut(); $('#examHeader').show(); $('#examMainContent').show();
-                    if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(err=>{}); }
+                    $('#loginScreen').fadeOut(); 
+                    $('#examHeader').show(); 
+                    $('#examMainContent').show();
+                    
+                    // Kích hoạt chế độ toàn màn hình phòng thi
+                    if (document.documentElement.requestFullscreen) { 
+                        document.documentElement.requestFullscreen().catch(err=>{}); 
+                    }
+                    
                     loadExamQuestions();
+                    startTimer(45 * 60); // 45 phút làm bài
                 } else {
                     alert(data.message);
                     $('#btnLogin').text("VÀO PHÒNG THI").prop('disabled', false);
                 }
-            }).catch(err => { alert("Lỗi kết nối: " + err); $('#btnLogin').text("VÀO PHÒNG THI").prop('disabled', false); });
+            })
+            .catch(err => { 
+                alert("Lỗi kết nối tới hệ thống: " + err); 
+                $('#btnLogin').text("VÀO PHÒNG THI").prop('disabled', false); 
+            });
     }
 
     function loadExamQuestions() {
@@ -127,44 +173,212 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success' && data.data.length > 0) {
-                    $('#examPassage').html(data.data[0].passage || "Không có ngữ liệu.");
-                    $('#examQuestionContent').html(data.data[0].question);
-                    $('#questionPalette').html('<button class="btn btn-light btn-current">1</button>');
-                    renderMathStudent();
+                    examQuestions = data.data;
+                    renderQuestion(0);
+                    renderPalette();
                 } else {
-                    $('#examQuestionContent').html("<div class='alert alert-warning'>Chưa có câu hỏi cho khối lớp này!</div>");
+                    $('#examQuestionContent').html("<div class='alert alert-warning'>Chưa có câu hỏi nào trong ngân hàng cho khối lớp này!</div>");
                 }
+            })
+            .catch(err => {
+                console.error("Lỗi tải câu hỏi:", err);
+                $('#examQuestionContent').html("<div class='alert alert-danger'>Lỗi kết nối khi tải câu hỏi!</div>");
             });
     }
 
+    function renderQuestion(index) {
+        if (index < 0 || index >= examQuestions.length) return;
+        currentIndex = index;
+        let q = examQuestions[currentIndex];
+
+        $('#currentQHeading').text(`Câu hỏi ${currentIndex + 1}`);
+        $('#currentQLevel').text(q.level || "Thông hiểu");
+        $('#examPassage').html(q.passage || "Không có ngữ liệu bổ trợ cho câu hỏi này.");
+
+        let htmlContent = `<div class="mb-3 font-weight-bold text-dark" style="font-size: 1.02rem;">${q.question}</div>`;
+
+        // Phân loại render theo định dạng câu hỏi (TRAC_NGHIEM, DUNG_SAI, TRA_LOI_NGAN)
+        if (q.type === 'TRAC_NGHIEM' || !q.type) {
+            if (q.options && typeof q.options === 'object') {
+                htmlContent += `<div class="list-options mt-3">`;
+                for (let key in q.options) {
+                    let isChecked = studentAnswers[currentIndex] === key ? 'checked' : '';
+                    htmlContent += `
+                        <div class="custom-control custom-radio mb-2 p-2 bg-light rounded border">
+                            <input type="radio" id="opt_${key}" name="studentAnswer" class="custom-control-input" value="${key}" ${isChecked} onclick="saveAnswer('${key}')">
+                            <label class="custom-control-label font-weight-normal ml-2" for="opt_${key}" style="cursor: pointer; width: 100%;">
+                                <strong class="text-primary mr-2">${key}.</strong> ${q.options[key]}
+                            </label>
+                        </div>`;
+                }
+                htmlContent += `</div>`;
+            }
+        } 
+        else if (q.type === 'DUNG_SAI') {
+            let subStatements = q.options && typeof q.options === 'object' ? q.options : {
+                "a": "Nhận định thứ nhất.", "b": "Nhận định thứ hai.", "c": "Nhận định thứ ba.", "d": "Nhận định thứ tư."
+            };
+            
+            if(!studentAnswers[currentIndex]) studentAnswers[currentIndex] = {};
+
+            htmlContent += `<div class="table-responsive mt-3"><table class="table table-bordered table-sm text-center">
+                <thead class="thead-light"><tr><th class="text-left">Ý phát biểu</th><th>Đúng</th><th>Sai</th></tr></thead><tbody>`;
+            for (let key in subStatements) {
+                let val = studentAnswers[currentIndex][key] || '';
+                let checkedD = val === 'D' ? 'checked' : '';
+                let checkedS = val === 'S' ? 'checked' : '';
+                htmlContent += `
+                    <tr>
+                        <td class="text-left align-middle"><strong>${key})</strong> ${subStatements[key]}</td>
+                        <td class="align-middle"><input type="radio" name="ds_${key}" value="D" ${checkedD} onclick="saveTrueFalseAnswer('${key}', 'D')"></td>
+                        <td class="align-middle"><input type="radio" name="ds_${key}" value="S" ${checkedS} onclick="saveTrueFalseAnswer('${key}', 'S')"></td>
+                    </tr>`;
+            }
+            htmlContent += `</tbody></table></div>`;
+        } 
+        else {
+            let currentVal = studentAnswers[currentIndex] || '';
+            htmlContent += `
+                <div class="mt-4">
+                    <label class="small font-weight-bold text-muted"><i class="fas fa-pen-nib mr-1"></i> Nhập kết quả trả lời ngắn:</label>
+                    <input type="text" class="form-control form-control-lg text-primary font-weight-bold" placeholder="Nhập đáp số..." id="shortAnswerInput" value="${currentVal}" oninput="saveShortAnswer(this.value)">
+                </div>`;
+        }
+
+        $('#examQuestionContent').html(htmlContent);
+        renderMathStudent();
+        updatePaletteActive();
+    }
+
+    function saveAnswer(val) {
+        studentAnswers[currentIndex] = val;
+        updatePaletteStatus(currentIndex);
+    }
+
+    function saveTrueFalseAnswer(subKey, val) {
+        if(!studentAnswers[currentIndex]) studentAnswers[currentIndex] = {};
+        studentAnswers[currentIndex][subKey] = val;
+        updatePaletteStatus(currentIndex);
+    }
+
+    function saveShortAnswer(val) {
+        studentAnswers[currentIndex] = val;
+        updatePaletteStatus(currentIndex);
+    }
+
+    function nextQuestion() {
+        if (currentIndex < examQuestions.length - 1) {
+            renderQuestion(currentIndex + 1);
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            renderQuestion(currentIndex - 1);
+        }
+    }
+
+    function renderPalette() {
+        let paletteHtml = '';
+        for (let i = 0; i < examQuestions.length; i++) {
+            paletteHtml += `<button class="btn btn-outline-secondary btn-sm m-1" id="palette_${i}" onclick="renderQuestion(${i})">${i + 1}</button>`;
+        }
+        $('#questionPalette').html(paletteHtml);
+        updatePaletteActive();
+    }
+
+    function updatePaletteActive() {
+        $('.question-palette button').removeClass('btn-primary btn-outline-secondary btn-success').addClass('btn-outline-secondary');
+        $(`#palette_${currentIndex}`).removeClass('btn-outline-secondary').addClass('btn-primary');
+        
+        // Đánh dấu các câu đã làm
+        for(let i in studentAnswers) {
+            if(studentAnswers[i] && Object.keys(studentAnswers[i]).length > 0) {
+                $(`#palette_${i}`).removeClass('btn-outline-secondary btn-primary').addClass('btn-success text-white');
+            }
+        }
+        // Giữ active cho câu hiện tại
+        $(`#palette_${currentIndex}`).removeClass('btn-success btn-outline-secondary').addClass('btn-primary text-white');
+    }
+
+    function updatePaletteStatus(index) {
+        if(studentAnswers[index]) {
+            $(`#palette_${index}`).removeClass('btn-outline-secondary btn-primary').addClass('btn-success text-white');
+            $(`#palette_${currentIndex}`).removeClass('btn-success').addClass('btn-primary text-white');
+        }
+    }
+
+    // Cơ chế chống gian lận (Phát hiện rời màn hình / tab)
     document.addEventListener("visibilitychange", function() {
-        if (document.hidden && $('#examMainContent').is(':visible')) { triggerAntiCheat(); }
+        if (document.hidden && $('#examMainContent').is(':visible')) { 
+            triggerAntiCheat(); 
+        }
     });
 
     function triggerAntiCheat() {
-        cheatViolations++; $('#cheatCount').text(cheatViolations); $('#cheatWarning').css('display', 'flex');
-        if (cheatViolations >= 3) { alert("Quá 3 lần vi phạm! Hệ thống tự động nộp bài."); submitExam(); }
+        cheatViolations++; 
+        $('#cheatCount').text(cheatViolations); 
+        $('#cheatWarning').css('display', 'flex');
+        if (cheatViolations >= 3) { 
+            alert("Bạn đã vi phạm quy chế thi 3 lần! Hệ thống tự động nộp bài."); 
+            submitExam(); 
+        }
     }
-    function resumeExam() { $('#cheatWarning').hide(); }
+
+    function resumeExam() { 
+        $('#cheatWarning').hide(); 
+    }
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        timerInterval = setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            $('#timer').text(minutes + ":" + seconds);
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                alert("Đã hết thời gian làm bài! Hệ thống tự động nộp bài.");
+                submitExam();
+            }
+        }, 1000);
+    }
 
     function submitExam() {
-        if(!confirm("Bạn có chắc chắn muốn nộp bài thi?")) return;
+        if(!confirm("Bạn có chắc chắn muốn nộp bài thi không?")) return;
+        clearInterval(timerInterval);
+
+        // Tính toán giả định số câu đúng dựa trên số câu đã trả lời để lưu kết quả
+        let answeredCount = Object.keys(studentAnswers).length;
+        let finalScore = ((answeredCount / (examQuestions.length || 1)) * 10).toFixed(2);
+
+        let payload = {
+            action: "submitExam",
+            sbd: currentStudent.sbd,
+            name: currentStudent.name,
+            grade: currentStudent.grade,
+            lop: currentStudent.session || "",
+            score: parseFloat(finalScore),
+            correctCount: answeredCount,
+            totalCount: examQuestions.length,
+            violations: cheatViolations
+        };
+
         fetch(API_URL, {
             method: 'POST',
-            body: JSON.stringify({
-                action: "submitExam",
-                sbd: currentStudent.sbd,
-                name: currentStudent.name,
-                grade: currentStudent.grade,
-                lop: currentStudent.session || "",
-                score: 8.5,
-                correctCount: 17,
-                totalCount: 20,
-                violations: cheatViolations
-            })
-        }).then(res => res.json()).then(data => {
-            alert(data.message);
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message || "Nộp bài thi thành công!");
             location.reload();
+        })
+        .catch(err => {
+            alert("Lỗi khi gửi kết quả lên hệ thống: " + err);
         });
     }
 </script>
