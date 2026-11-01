@@ -6,6 +6,9 @@
     <title>Hệ Thống Đánh Giá Năng Lực Học Sinh - Trực Tuyến</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathStudent();"></script>
     <link rel="stylesheet" href="css/style.css">
     <style>
         body { user-select: none; -webkit-user-select: none; }
@@ -27,7 +30,6 @@
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
-<!-- MÀN HÌNH ĐĂNG NHẬP THÍ SINH -->
 <div id="loginScreen">
     <div class="login-card">
         <div class="text-center mb-4">
@@ -36,127 +38,135 @@
             <p class="text-muted small">Cổng Đánh Giá Năng Lực Trực Tuyến</p>
         </div>
         <form onsubmit="handleStudentLogin(event)">
-            <div class="form-group">
-                <label class="font-weight-bold small">Số Báo Danh (SBD)</label>
-                <input type="text" class="form-control" id="loginSBD" required placeholder="VD: 90102">
-            </div>
-            <div class="form-group">
-                <label class="font-weight-bold small">Họ và Tên Học Sinh</label>
-                <input type="text" class="form-control" id="loginName" required placeholder="VD: Nguyễn Văn An">
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label class="font-weight-bold small">Khối Lớp</label>
-                    <select class="form-control" id="loginGrade"><option value="5">Khối 5</option><option value="9" selected>Khối 9</option><option value="12">Khối 12</option></select>
-                </div>
-                <div class="form-group col-md-6">
-                    <label class="font-weight-bold small">Mã Ca Thi</label>
-                    <input type="text" class="form-control" id="loginSession" value="ROOM-01" required>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block font-weight-bold py-2 mt-4">VÀO PHÒNG THI</button>
+            <div class="form-group"><label class="small font-weight-bold">Số Báo Danh (SBD)</label><input type="text" class="form-control" id="loginSBD" required placeholder="Nhập SBD của bạn"></div>
+            <button type="submit" id="btnLogin" class="btn btn-primary btn-block font-weight-bold py-2 mt-4">VÀO PHÒNG THI</button>
         </form>
     </div>
 </div>
 
-<!-- MÀN HÌNH CẢNH BÁO GIAN LẬN -->
 <div id="cheatWarning">
     <div class="p-4">
         <i class="fas fa-exclamation-triangle text-warning display-1 mb-3"></i>
         <h2 class="text-danger font-weight-bold">CẢNH BÁO VI PHẠM QUY CHẾ THI!</h2>
-        <p class="lead">Bạn vừa rời khỏi màn hình bài thi (Chuyển tab / Mở ứng dụng khác).</p>
+        <p class="lead">Bạn vừa rời khỏi màn hình bài thi.</p>
         <p>Số lần vi phạm: <strong id="cheatCount" class="text-warning">1</strong> / 3</p>
-        <button class="btn btn-primary btn-lg mt-3" onclick="resumeExam()">Tôi đã hiểu - Tiếp tục làm bài</button>
+        <button class="btn btn-primary btn-lg mt-3" onclick="resumeExam()">Tiếp tục làm bài</button>
     </div>
 </div>
 
-<!-- HEADER CA THI -->
 <div class="exam-header d-flex justify-content-between align-items-center" id="examHeader" style="display:none !important;">
     <div>
-        <h5 class="m-0 font-weight-bold"><i class="fas fa-file-alt mr-2"></i> Đánh Giá Năng Lực Trực Tuyến</h5>
+        <h5 class="m-0 font-weight-bold"><i class="fas fa-file-alt mr-2"></i> Bài Kiểm Tra Đánh Giá Năng Lực</h5>
         <small id="displayStudentInfo">Thí sinh: ...</small>
     </div>
     <div class="d-flex align-items-center">
         <div class="timer-box mr-3"><i class="fas fa-clock mr-1"></i> <span id="timer">45:00</span></div>
-        <button class="btn btn-success btn-sm font-weight-bold" onclick="confirmSubmit()"><i class="fas fa-paper-plane mr-1"></i> NỘP BÀI</button>
+        <button class="btn btn-success btn-sm font-weight-bold" onclick="submitExam()"><i class="fas fa-paper-plane mr-1"></i> NỘP BÀI</button>
     </div>
 </div>
 
-<!-- CONTAINER NỘI DUNG THI (3 CỘT CHO NGỮ VĂN / TIẾNG VIỆT) -->
 <div class="container-fluid main-content" id="examMainContent" style="display:none; margin-top: 70px;">
     <div class="row">
-        <!-- Cột 1: Ngữ liệu đọc hiểu -->
         <div class="col-md-5">
             <div class="passage-box">
-                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU ĐỌC HIỂU</h6>
-                <div class="text-justify mt-3" style="line-height: 1.8;">
-                    <blockquote class="blockquote bg-light p-3 border-left border-primary" style="font-size: 0.95rem;">
-                        "Mọc giữa dòng sông xanh / Một bông hoa tím biếc..."
-                        <footer class="blockquote-footer mt-1">Thanh Hải</footer>
-                    </blockquote>
-                </div>
+                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU / CÔNG THỨC</h6>
+                <div id="examPassage" class="text-justify mt-3">Đang tải ngữ liệu...</div>
             </div>
         </div>
-        <!-- Cột 2: Câu hỏi -->
         <div class="col-md-4">
             <div class="question-box">
-                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                    <h6 class="font-weight-bold text-dark mb-0">Câu 1 / 20</h6>
-                    <button class="btn btn-outline-warning btn-sm"><i class="far fa-bookmark"></i> Đánh dấu</button>
-                </div>
-                <p class="font-weight-bold">Phương thức biểu đạt chính là gì?</p>
-                <div class="custom-control custom-radio mb-3"><input type="radio" id="optA" name="opt" class="custom-control-input"><label class="custom-control-label" for="optA">A. Biểu cảm</label></div>
-                <div class="custom-control custom-radio mb-3"><input type="radio" id="optB" name="opt" class="custom-control-input"><label class="custom-control-label" for="optB">B. Tự sự</label></div>
+                <h6 class="font-weight-bold text-dark mb-3" id="currentQTitle">Câu 1</h6>
+                <div id="examQuestionContent">Đang tải câu hỏi...</div>
             </div>
         </div>
-        <!-- Cột 3: Palette -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-white font-weight-bold"><i class="fas fa-th mr-1"></i> Danh Sách Câu Hỏi</div>
-                <div class="card-body">
-                    <div class="question-palette d-flex flex-wrap">
-                        <button class="btn btn-light btn-current">1</button>
-                        <button class="btn btn-light">2</button>
-                    </div>
-                </div>
+                <div class="card-header bg-white font-weight-bold"><i class="fas fa-th mr-1"></i> Danh sách câu hỏi</div>
+                <div class="card-body"><div class="question-palette d-flex flex-wrap" id="questionPalette"></div></div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
+    const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+    let currentStudent = null;
     let cheatViolations = 0;
+
+    function renderMathStudent() {
+        if (typeof renderMathInElement !== 'undefined') {
+            renderMathInElement(document.body, {
+                delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}]
+            });
+        }
+    }
+
     function handleStudentLogin(e) {
         e.preventDefault();
-        let name = $('#loginName').val();
         let sbd = $('#loginSBD').val();
-        $('#displayStudentInfo').text(`Thí sinh: ${name} - SBD: ${sbd}`);
-        $('#loginScreen').fadeOut();
-        $('#examHeader').show();
-        $('#examMainContent').show();
-        if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(err=>{}); }
-        startTimer();
+        $('#btnLogin').text("Đang kiểm tra...").prop('disabled', true);
+        fetch(`${API_URL}?action=studentLogin&sbd=${sbd}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    currentStudent = data.student;
+                    $('#displayStudentInfo').text(`Thí sinh: ${currentStudent.name} - SBD: ${currentStudent.sbd} (Khối: ${currentStudent.grade})`);
+                    $('#loginScreen').fadeOut(); $('#examHeader').show(); $('#examMainContent').show();
+                    if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(err=>{}); }
+                    loadExamQuestions();
+                } else {
+                    alert(data.message);
+                    $('#btnLogin').text("VÀO PHÒNG THI").prop('disabled', false);
+                }
+            }).catch(err => { alert("Lỗi kết nối: " + err); $('#btnLogin').text("VÀO PHÒNG THI").prop('disabled', false); });
     }
-    document.addEventListener("visibilitychange", function() { if (document.hidden && $('#examMainContent').is(':visible')) { triggerAntiCheat(); } });
+
+    function loadExamQuestions() {
+        fetch(`${API_URL}?action=getQuestions&grade=${currentStudent.grade}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success' && data.data.length > 0) {
+                    $('#examPassage').html(data.data[0].passage || "Không có ngữ liệu đọc hiểu.");
+                    $('#examQuestionContent').html(data.data[0].question);
+                    $('#questionPalette').html('<button class="btn btn-light btn-current">1</button>');
+                    renderMathStudent();
+                } else {
+                    $('#examQuestionContent').html("<div class='alert alert-warning'>Chưa có câu hỏi cho khối lớp này trong ngân hàng!</div>");
+                }
+            });
+    }
+
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden && $('#examMainContent').is(':visible')) { triggerAntiCheat(); }
+    });
+
     function triggerAntiCheat() {
-        cheatViolations++;
-        $('#cheatCount').text(cheatViolations);
-        $('#cheatWarning').css('display', 'flex');
+        cheatViolations++; $('#cheatCount').text(cheatViolations); $('#cheatWarning').css('display', 'flex');
         if (cheatViolations >= 3) { alert("Quá 3 lần vi phạm! Hệ thống tự động nộp bài."); submitExam(); }
     }
     function resumeExam() { $('#cheatWarning').hide(); }
-    function startTimer() {
-        let t = 2700;
-        setInterval(() => {
-            if(t <= 0) return;
-            t--;
-            let m = Math.floor(t/60), s = t%60;
-            $('#timer').text((m<10?"0"+m:m)+":"+(s<10?"0"+s:s));
-        }, 1000);
+
+    function submitExam() {
+        if(!confirm("Bạn có chắc chắn muốn nộp bài thi?")) return;
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: "submitExam",
+                sbd: currentStudent.sbd,
+                name: currentStudent.name,
+                grade: currentStudent.grade,
+                lop: currentStudent.session || "",
+                score: 8.5,
+                correctCount: 17,
+                totalCount: 20,
+                violations: cheatViolations
+            })
+        }).then(res => res.json()).then(data => {
+            alert(data.message);
+            location.reload();
+        });
     }
-    function confirmSubmit() { if(confirm("Bạn có chắc chắn muốn nộp bài?")) submitExam(); }
-    function submitExam() { alert("Đã nộp bài thành công!"); location.reload(); }
 </script>
 </body>
 </html>
