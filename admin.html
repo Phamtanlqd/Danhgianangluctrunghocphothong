@@ -31,11 +31,11 @@
         <form onsubmit="handleAdminLogin(event)">
             <div class="form-group text-left">
                 <label class="small font-weight-bold">Tài khoản</label>
-                <input type="text" id="adminUser" class="form-control" required value="admin">
+                <input type="text" id="adminUser" class="form-control" required value="phamtan">
             </div>
             <div class="form-group text-left">
                 <label class="small font-weight-bold">Mật khẩu</label>
-                <input type="password" id="adminPass" class="form-control" required value="123456">
+                <input type="password" id="adminPass" class="form-control" required value="12345678">
             </div>
             <button type="submit" id="btnLogin" class="btn btn-primary btn-block font-weight-bold mt-4 py-2">ĐĂNG NHẬP</button>
         </form>
@@ -227,7 +227,7 @@
                                     <button type="submit" class="btn btn-info btn-block font-weight-bold">+ Thêm Môn Học</button>
                                 </form>
                                 <table class="table table-bordered table-sm">
-                                    <thead class="thead-light"><tr><th>Mã</th><th>Tên môn học</th></tr></thead>
+                                    <thead class="thead-light"><tr><th>Mã môn</th><th>Tên môn học</th></tr></thead>
                                     <tbody id="subjectTableBody"><tr><td colspan="2" class="text-center text-muted">Đang tải...</td></tr></tbody>
                                 </table>
                             </div>
@@ -238,12 +238,12 @@
                             <div class="card-header"><i class="fas fa-school text-warning mr-2"></i> Danh Mục Khối & Lớp Học</div>
                             <div class="card-body">
                                 <form onsubmit="saveClassCategory(event)" class="mb-3">
-                                    <div class="form-group"><input type="text" class="form-control" id="catGrade" placeholder="Khối (VD: 12)" required></div>
-                                    <div class="form-group"><input type="text" class="form-control" id="catClass" placeholder="Danh sách lớp cách nhau phẩy (VD: 12A1, 12A2)" required></div>
+                                    <div class="form-group"><input type="text" class="form-control" id="catGrade" placeholder="Khối (VD: Khối 11)" required></div>
+                                    <div class="form-group"><input type="text" class="form-control" id="catClass" placeholder="Danh sách lớp cách nhau phẩy (VD: 11B1, 11B4)" required></div>
                                     <button type="submit" class="btn btn-warning btn-block font-weight-bold">+ Thêm Khối & Lớp</button>
                                 </form>
                                 <table class="table table-bordered table-sm">
-                                    <thead class="thead-light"><tr><th>Khối</th><th>Lớp học</th></tr></thead>
+                                    <thead class="thead-light"><tr><th>Khối</th><th>Danh sách lớp học</th></tr></thead>
                                     <tbody id="classTableBody"><tr><td colspan="2" class="text-center text-muted">Đang tải...</td></tr></tbody>
                                 </table>
                             </div>
@@ -397,19 +397,19 @@
         fetch(`${API_URL}?action=getCategories`).then(res => res.json()).then(data => {
             if(data.status === 'success') {
                 let subHtml = '';
-                let subjectOptions = '<option value="">-- Chọn môn học --</option>';
+                let subjectOptions = '<option value="">-- Chọn môn học chuẩn --</option>';
                 data.subjects.forEach(item => {
                     subHtml += `<tr><td><code>${item.code}</code></td><td><strong>${item.name}</strong></td></tr>`;
                     subjectOptions += `<option value="${item.name}">${item.name} (${item.code})</option>`;
                 });
-                $('#subjectTableBody').html(subHtml || '<tr><td colspan="2" class="text-center text-muted">Chưa có môn</td></tr>');
+                $('#subjectTableBody').html(subHtml || '<tr><td colspan="2" class="text-center text-muted">Chưa có môn học</td></tr>');
                 $('.select-subject').html(subjectOptions);
 
                 let classHtml = '';
                 data.classes.forEach(item => {
-                    classHtml += `<tr><td>Khối ${item.grade}</td><td><strong>${item.className}</strong></td></tr>`;
+                    classHtml += `<tr><td><strong>${item.grade}</strong></td><td>${item.className}</td></tr>`;
                 });
-                $('#classTableBody').html(classHtml || '<tr><td colspan="2" class="text-center text-muted">Chưa có lớp</td></tr>');
+                $('#classTableBody').html(classHtml || '<tr><td colspan="2" class="text-center text-muted">Chưa có lớp học</td></tr>');
             }
         });
     }
