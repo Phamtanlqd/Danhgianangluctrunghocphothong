@@ -9,13 +9,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMath();"></script>
-    <!-- Thư viện Mammoth.js -->
+    <!-- Thư viện Mammoth.js hỗ trợ chuyển đổi Word sang HTML kèm hình ảnh base64 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <style>
         #adminLoginModal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .login-box { background: #fff; padding: 40px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); width: 100%; max-width: 420px; }
-        .question-preview img { max-width: 100%; height: auto; display: block; margin: 10px 0; }
+        .question-preview img { max-width: 150px; height: auto; display: block; margin: 5px 0; border: 1px solid #ddd; padding: 2px; }
     </style>
 </head>
 <body>
@@ -46,20 +46,29 @@
 
         <main class="col-md-10 ml-sm-auto px-md-4 main-content">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom">
-                <h1 class="h3 text-primary font-weight-bold">Hệ Thống Đánh Giá Năng Lực (Khối 1 - 12)</h1>
+                <h1 class="h3 text-primary font-weight-bold">Hệ Thống Đánh Giá Năng Lực (Tự Động Bóc Tách Đề Gốc)</h1>
                 <span class="badge badge-success p-2"><i class="fas fa-user-check mr-1"></i> Quản trị: <strong id="adminName">Admin</strong></span>
             </div>
 
-            <!-- TAB 1: NGÂN HÀNG & BÓC TÁCH THÔNG MINH GIỮ ẢNH -->
+            <!-- TAB 1: NGÂN HÀNG & BÓC TÁCH -->
             <div id="section-itemBank" class="admin-section">
                 <div class="card mb-4 border-primary">
                     <div class="card-header bg-primary text-white font-weight-bold">
-                        <i class="fas fa-file-upload mr-2"></i> Trạm Thông Minh: Bóc Tách Đề Gốc (Giữ nguyên Hình ảnh & 4 Đáp án)
+                        <i class="fas fa-file-upload mr-2"></i> Trạm Thông Minh: Tải Lên Đề Gốc (.docx - Giữ Ảnh & Cấu Trúc 3 Phần)
                     </div>
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-md-7">
-                                <label class="font-weight-bold small">1. Tải lên file đề kiểm tra gốc (.docx):</label>
+                                <label class="font-weight-bold small">1. Chọn môn học của đề:</label>
+                                <select class="form-control mb-3" id="uploadSubject">
+                                    <option value="Toán học">Toán học</option>
+                                    <option value="Vật lí">Vật lí</option>
+                                    <option value="Hóa học">Hóa học</option>
+                                    <option value="Sinh học">Sinh học</option>
+                                    <option value="Ngữ văn">Ngữ văn</option>
+                                </select>
+
+                                <label class="font-weight-bold small">2. Tải lên file Word đề gốc (.docx):</label>
                                 <div class="input-group">
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" id="wordFileExam" accept=".docx" onchange="parseWordExam(event)">
@@ -67,29 +76,26 @@
                                     </div>
                                     <div class="input-group-append"><button class="btn btn-outline-primary" type="button" onclick="processParsedExam()">Đẩy Vào Ngân Hàng</button></div>
                                 </div>
-                                <small class="text-muted">Hệ thống trích xuất HTML, giữ nguyên vẹn hình vẽ minh họa và các phương án A, B, C, D.</small>
+                                <small class="text-muted mt-1 d-block">Hệ thống tự động giữ nguyên hình vẽ, đồ thị và phân tách rõ Phần 1, Phần 2, Phần 3.</small>
                             </div>
                             <div class="col-md-5 text-right">
-                                <label class="font-weight-bold small d-block">2. Xuất bản & Trộn mã đề:</label>
-                                <button class="btn btn-success font-weight-bold mr-2" onclick="shuffleExamCodes()"><i class="fas fa-random mr-1"></i> Trộn 4 Mã Đề</button>
-                                <button class="btn btn-warning font-weight-bold text-dark" onclick="alert('Đã kết xuất Ma Trận & Đặc Tả chuẩn!')"><i class="fas fa-file-word mr-1"></i> Xuất Ma Trận</button>
+                                <label class="font-weight-bold small d-block">3. Xuất bản đề thi:</label>
+                                <button class="btn btn-success font-weight-bold mr-2 mb-2" onclick="shuffleExamCodes()"><i class="fas fa-random mr-1"></i> Trộn 4 Mã Đề</button>
+                                <button class="btn btn-warning font-weight-bold text-dark mb-2" onclick="alert('Đã kết xuất Ma Trận chuẩn!')"><i class="fas fa-file-word mr-1"></i> Xuất Ma Trận</button>
                             </div>
                         </div>
                         <div id="parseResultArea" class="mt-3" style="display:none;">
-                            <div class="alert alert-info py-2 small mb-0">Đã bóc tách thành công <strong id="parsedCount">0</strong> câu hỏi chuẩn xác! Sẵn sàng đồng bộ.</div>
+                            <div class="alert alert-info py-2 small mb-0">Đã bóc tách thành công <strong id="parsedCount">0</strong> câu hỏi kèm hình ảnh! Sẵn sàng đồng bộ.</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-database text-primary mr-2"></i> Ngân Hàng Câu Hỏi (Hỗ trợ LaTeX & Hình ảnh)</span>
-                        <button class="btn btn-primary btn-sm font-weight-bold" onclick="$('#itemModal').modal('show')"><i class="fas fa-plus mr-1"></i> Thêm Câu Hỏi</button>
-                    </div>
+                    <div class="card-header"><i class="fas fa-database text-primary mr-2"></i> Ngân Hàng Câu Hỏi Hệ Thống</div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover">
-                                <thead class="thead-light"><tr><th>ID</th><th>Môn</th><th>Khối</th><th>Dạng</th><th>Nội dung & Hình ảnh</th><th>Mức độ</th></tr></thead>
+                                <thead class="thead-light"><tr><th>ID</th><th>Môn</th><th>Khối</th><th>Phần / Dạng</th><th>Nội dung & Hình ảnh minh họa</th><th>Mức độ</th></tr></thead>
                                 <tbody id="questionTableBody"><tr><td colspan="6" class="text-center text-muted">Đang tải dữ liệu...</td></tr></tbody>
                             </table>
                         </div>
@@ -97,9 +103,8 @@
                 </div>
             </div>
 
-            <!-- TAB 2 & 3 -->
-            <div id="section-blueprint" class="admin-section" style="display:none;"><div class="card p-5 text-center"><h5>Khu vực Ma trận & Đặc tả hệ thống</h5></div></div>
-            <div id="section-categories" class="admin-section" style="display:none;"><div class="card p-5 text-center"><h5>Khu vực Quản lý Danh mục Môn & Lớp</h5></div></div>
+            <div id="section-blueprint" class="admin-section" style="display:none;"><div class="card p-5 text-center"><h5>Khu vực Ma trận & Đặc tả</h5></div></div>
+            <div id="section-categories" class="admin-section" style="display:none;"><div class="card p-5 text-center"><h5>Khu vực Quản lý Danh mục</h5></div></div>
         </main>
     </div>
 </div>
@@ -123,7 +128,7 @@
 
     function switchTab(id, el) { $('.admin-section').hide(); $('#section-' + id).show(); $('.sidebar a').removeClass('active'); $(el).addClass('active'); }
 
-    // --- BÓC TÁCH THÔNG MINH SỬ DỤNG CONVERTOHTML (GIỮ NGUYÊN ẢNH VÀ CẤU TRÚC HTML) ---
+    // --- BÓC TÁCH FILE WORD THÔNG MINH (GIỮ ẢNH VÀ TỰ ĐỘNG CHIA 3 PHẦN) ---
     function parseWordExam(event) {
         let file = event.target.files[0];
         if (!file) return;
@@ -143,60 +148,56 @@
         let $dom = $('<div>').html(htmlString);
         let currentQ = null;
         let qList = [];
+        let selectedSubject = $('#uploadSubject').val() || "Toán học";
 
-        // Duyệt qua các thẻ p hoặc block để gom câu hỏi
-        $dom.find('p, div').each(function() {
+        // Quét các đoạn văn bản, bảng, hình ảnh
+        $dom.find('p, div, table').each(function() {
             let text = $(this).text().trim();
             if (/^Câu\s+\d+[\.\:]/i.test(text)) {
                 if (currentQ) qList.push(currentQ);
-                currentQ = {
-                    questionHtml: $(this).html(),
-                    rawText: text,
-                    fullHtmlBlocks: [$(this).html()]
-                };
+                currentQ = { fullHtmlBlocks: [$(this).prop('outerHTML')] };
             } else if (currentQ) {
-                currentQ.fullHtmlBlocks.push($(this).html());
+                currentQ.fullHtmlBlocks.push($(this).prop('outerHTML'));
             }
         });
         if (currentQ) qList.push(currentQ);
 
         qList.forEach(item => {
-            let fullHtml = item.fullHtmlBlocks.join("<br>");
+            let fullHtml = item.fullHtmlBlocks.join(" ");
             let options = {};
             let qType = "TRAC_NGHIEM";
 
-            // Kiểm tra phân loại dạng câu hỏi
+            // Phân loại tự động theo cấu trúc chuẩn Bộ GD&ĐT
             if (fullHtml.includes("a)") && fullHtml.includes("b)")) {
                 qType = "DUNG_SAI";
-                options = { "a": "Nhận định a", "b": "Nhận định b", "c": "Nhận định c", "d": "Nhận định d" };
-            } else if (fullHtml.includes("Trả lời:") || !fullHtml.includes("A.") && !fullHtml.includes("A)")) {
+                options = { "a": "Đúng/Sai ý a", "b": "Đúng/Sai ý b", "c": "Đúng/Sai ý c", "d": "Đúng/Sai ý d" };
+            } else if (fullHtml.includes("Trả lời:") || (!fullHtml.includes("A.") && !fullHtml.includes("A)"))) {
                 qType = "TRA_LOI_NGAN";
             } else {
-                // Tách các phương án A, B, C, D từ HTML thông minh
-                let partsA = fullHtml.split(/A[\.\)]\s*/);
-                let mainQ = partsA[0];
+                let partsA = fullHtml.split(/[Aａ][\.\)]\s*/);
+                let mainQ = partsA[0] || "";
                 let rest = partsA[1] || "";
-                let partsB = rest.split(/B[\.\)]\s*/);
+                let partsB = rest.split(/[Bｂ][\.\)]\s*/);
                 let optA = partsB[0] || "";
                 let rest2 = partsB[1] || "";
-                let partsC = rest2.split(/C[\.\)]\s*/);
+                let partsC = rest2.split(/[Cｃ][\.\)]\s*/);
                 let optB = partsC[0] || "";
                 let rest3 = partsC[1] || "";
-                let partsD = rest3.split(/D[\.\)]\s*/);
+                let partsD = rest3.split(/[Dｄ][\.\)]\s*/);
                 let optC = partsD[0] || "";
                 let optD = partsD[1] || "";
 
                 fullHtml = mainQ;
-                options = { "A": optA, "B": optB, "C": optC, "D": optD };
+                options = { "A": optA.trim(), "B": optB.trim(), "C": optC.trim(), "D": optD.trim() };
             }
 
             extractedQuestions.push({
-                subject: "Toán học",
+                subject: selectedSubject,
                 grade: "12",
                 questionType: qType,
                 level: "Thông hiểu",
                 passage: "",
-                question: fullHtml, // Giữ nguyên toàn bộ HTML bao gồm cả thẻ <img> base64
+                question: fullHtml, // Chứa cả thẻ <img> base64 của hình vẽ
                 options: options,
                 correctAnswer: "A"
             });
@@ -212,7 +213,7 @@
         extractedQuestions.forEach(q => {
             fetch(API_URL, {method: 'POST', body: JSON.stringify({action: "addItemFlexible", ...q})}).then(() => {
                 count++;
-                if(count === extractedQuestions.length) { alert(`Đã đẩy thành công ${count} câu hỏi (bao gồm hình ảnh) vào ngân hàng!`); loadQuestions(); }
+                if(count === extractedQuestions.length) { alert(`Đã đẩy thành công ${count} câu hỏi kèm hình ảnh vào ngân hàng!`); loadQuestions(); }
             });
         });
     }
@@ -222,7 +223,8 @@
             if(data.status === 'success') {
                 let html = '';
                 data.data.forEach(item => {
-                    html += `<tr><td>${item.id}</td><td>${item.subject}</td><td>Khối ${item.grade}</td><td><span class="badge badge-secondary">${item.type}</span></td><td class="question-preview">${item.question}</td><td>${item.level}</td></tr>`;
+                    let badgeColor = item.type === 'TRAC_NGHIEM' ? 'badge-primary' : (item.type === 'DUNG_SAI' ? 'badge-warning' : 'badge-success');
+                    html += `<tr><td>${item.id}</td><td>${item.subject}</td><td>Khối ${item.grade}</td><td><span class="badge ${badgeColor}">${item.type}</span></td><td class="question-preview">${item.question}</td><td>${item.level}</td></tr>`;
                 });
                 $('#questionTableBody').html(html);
                 renderMath();
