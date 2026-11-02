@@ -15,8 +15,10 @@
         #loginScreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); z-index: 9998; display: flex; justify-content: center; align-items: center; }
         .login-card { background: #fff; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 450px; }
         .question-palette button { width: 40px; height: 40px; margin: 4px; font-weight: bold; border-radius: 8px; }
-        /* Đảm bảo hình ảnh trong câu hỏi hiển thị đẹp mắt và không bị tràn */
-        #examQuestionContent img, .passage-box img { max-width: 100%; height: auto; display: block; margin: 15px auto; }
+        /* Tối ưu hiển thị hình vẽ, đồ thị, hình học trong đề thi Toán, Lý, Hóa, Sinh */
+        #examQuestionContent img, .passage-box img { max-width: 100%; height: auto; display: block; margin: 15px auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        table, th, td { border: 1px solid #dee2e6; padding: 6px; text-align: left; }
     </style>
 </head>
 <body>
@@ -54,16 +56,17 @@
 <!-- NỘI DUNG PHÒNG THI -->
 <div class="container-fluid main-content" id="examMainContent" style="display:none; margin-top: 75px;">
     <div class="row">
-        <!-- Cột 1: Ngữ liệu -->
-        <div class="col-md-4">
+        <!-- Cột 1: Ngữ liệu (Chỉ hiển thị tự động khi là môn Ngữ văn / Tiếng Việt) -->
+        <div class="col-md-4" id="passageColumn" style="display: none;">
             <div class="passage-box">
-                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU ĐỌC HIỂU / DỮ LIỆU CHUNG</h6>
+                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="fas fa-book-open mr-1"></i> NGỮ LIỆU ĐỌC HIỂU</h6>
                 <div id="examPassage" class="text-justify mt-3 text-secondary">Đang tải ngữ liệu...</div>
             </div>
         </div>
-        <!-- Cột 2: Nội dung câu hỏi -->
-        <div class="col-md-5">
-            <div class="question-box">
+
+        <!-- Cột 2: Nội dung câu hỏi (Tự động mở rộng toàn màn hình cho Toán, Lý, Hóa, Sinh) -->
+        <div class="col-md-9 mx-auto" id="questionColumn">
+            <div class="question-box shadow-sm p-4 bg-white rounded">
                 <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                     <div>
                         <span class="badge badge-pill badge-danger px-3 py-1 mb-1 font-weight-bold" id="currentSectionBadge">Phần thi khảo thí</span>
@@ -71,8 +74,8 @@
                     </div>
                     <span class="badge badge-info" id="currentQLevel">Mức độ</span>
                 </div>
-                <!-- Vùng hiển thị HTML hỗ trợ đầy đủ hình ảnh và công thức -->
-                <div id="examQuestionContent">Đang tải câu hỏi...</div>
+                <!-- Vùng hiển thị câu hỏi và hình ảnh minh họa -->
+                <div id="examQuestionContent" class="my-3">Đang tải câu hỏi...</div>
                 
                 <div class="mt-4 pt-3 border-top d-flex justify-content-between">
                     <button class="btn btn-outline-secondary btn-sm font-weight-bold px-3" onclick="prevQuestion()"><i class="fas fa-chevron-left mr-1"></i> Câu trước</button>
@@ -80,7 +83,8 @@
                 </div>
             </div>
         </div>
-        <!-- Cột 3: Danh sách câu hỏi -->
+
+        <!-- Cột 3: Danh sách câu hỏi (Palette) -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white font-weight-bold"><i class="fas fa-th mr-1"></i> Danh sách câu hỏi</div>
@@ -143,6 +147,19 @@
         let q = examQuestions[currentIndex];
         let type = q._detectedType || 'TRAC_NGHIEM';
 
+        // Tự động kiểm tra môn học để ẩn/hiện cột ngữ liệu
+        let subjectName = (q.subject || "").toLowerCase();
+        let hasPassage = subjectName.includes("văn") || subjectName.includes("tiếng việt");
+
+        if (hasPassage) {
+            $('#passageColumn').show();
+            $('#questionColumn').removeClass('col-md-9 mx-auto').addClass('col-md-5');
+            $('#examPassage').html(q.passage || "Đang cập nhật ngữ liệu...");
+        } else {
+            $('#passageColumn').hide();
+            $('#questionColumn').removeClass('col-md-5').addClass('col-md-9 mx-auto'); // Mở rộng tối đa cho Toán, Lý, Hóa, Sinh
+        }
+
         let sectionTitle = "Phần 1: Trắc nghiệm nhiều lựa chọn";
         if (type === 'DUNG_SAI') sectionTitle = "Phần 2: Trắc nghiệm Đúng / Sai";
         else if (type === 'TRA_LOI_NGAN') sectionTitle = "Phần 3: Trắc nghiệm trả lời ngắn";
@@ -150,10 +167,8 @@
         $('#currentSectionBadge').text(sectionTitle);
         $('#currentQHeading').text(`Câu hỏi ${currentIndex + 1}`);
         $('#currentQLevel').text(q.level || "Thông hiểu");
-        $('#examPassage').html(q.passage || "Không có ngữ liệu bổ trợ.");
 
-        // Hiển thị nội dung câu hỏi (Render HTML giữ nguyên thẻ <img> hình vẽ minh họa)
-        let htmlContent = `<div class="mb-3 text-dark font-weight-bold" style="font-size: 1.02rem;">${q.question}</div>`;
+        let htmlContent = `<div class="mb-3 text-dark font-weight-bold" style="font-size: 1.05rem;">${q.question}</div>`;
 
         if (type === 'DUNG_SAI') {
             let subStatements = q.options && typeof q.options === 'object' ? q.options : { "a": "Nhận định a", "b": "Nhận định b", "c": "Nhận định c", "d": "Nhận định d" };
@@ -181,7 +196,6 @@
                 </div>`;
         } 
         else {
-            // Phần 1: Render đầy đủ các phương án A, B, C, D (Hỗ trợ HTML/Hình ảnh bên trong đáp án nếu có)
             let opts = q.options || { "A": "Phương án A", "B": "Phương án B", "C": "Phương án C", "D": "Phương án D" };
             htmlContent += `<div class="list-options mt-3">`;
             for (let key in opts) {
