@@ -40,7 +40,7 @@
 <!-- HEADER BÀI THI -->
 <div class="exam-header d-flex justify-content-between align-items-center" id="examHeader" style="display:none !important;">
     <div>
-        <h5 class="m-0 font-weight-bold"><i class="fas fa-file-alt mr-2"></i> Bài Kiểm Tra Đánh Giá Năng Lực</h5>
+        <h5 class="m-0 font-weight-bold"><i class="fas fa-file-alt mr-2"></i> Bài Kiểm Tra Đánh Giá Năng Lực (Chuẩn 3 Phần)</h5>
         <small id="displayStudentInfo">Thí sinh: ...</small>
     </div>
     <div class="d-flex align-items-center">
@@ -116,9 +116,26 @@
     function loadExamQuestions() {
         fetch(`${API_URL}?action=getQuestions&grade=${currentStudent.grade}`).then(res => res.json()).then(data => {
             if(data.status === 'success' && data.data.length > 0) {
-                let p1 = data.data.filter(q => q.type === 'TRAC_NGHIEM' || !q.type);
-                let p2 = data.data.filter(q => q.type === 'DUNG_SAI');
-                let p3 = data.data.filter(q => q.type === 'TRA_LOI_NGAN');
+                // TỰ ĐỘNG PHÂN LOẠI CHUẨN XÁC DỰA TRÊN THỰC TẾ OPTIONS CỦA CÂU HỎI
+                let p1 = [], p2 = [], p3 = [];
+
+                data.data.forEach(q => {
+                    let hasABCD = q.options && typeof q.options === 'object' && (q.options['A'] || q.options['B']);
+                    let hasAbcd = q.options && typeof q.options === 'object' && (q.options['a'] || q.options['b']);
+
+                    if (q.type === 'DUNG_SAI' || hasAbcd) {
+                        q._detectedType = 'DUNG_SAI';
+                        p2.push(q);
+                    } else if (q.type === 'TRA_LOI_NGAN' || !hasABCD) {
+                        q._detectedType = 'TRA_LOI_NGAN';
+                        p3.push(q);
+                    } else {
+                        q._detectedType = 'TRAC_NGHIEM';
+                        p1.push(q);
+                    }
+                });
+
+                // SẮP XẾP ĐÚNG CẤU TRÚC 3 PHẦN: PHẦN 1 -> PHẦN 2 -> PHẦN 3
                 examQuestions = [...p1, ...p2, ...p3];
 
                 renderQuestion(0);
@@ -133,10 +150,11 @@
         if (index < 0 || index >= examQuestions.length) return;
         currentIndex = index;
         let q = examQuestions[currentIndex];
+        let type = q._detectedType || 'TRAC_NGHIEM';
 
-        let sectionTitle = "Phần 1: Trắc nghiệm nhiều lựa chọn";
-        if (q.type === 'DUNG_SAI') sectionTitle = "Phần 2: Trắc nghiệm Đúng / Sai";
-        else if (q.type === 'TRA_LOI_NGAN') sectionTitle = "Phần 3: Trắc nghiệm trả lời ngắn";
+        let sectionTitle = "Phần 1: Trắc nghiệm nhiều lựa chọn (4 phương án)";
+        if (type === 'DUNG_SAI') sectionTitle = "Phần 2: Trắc nghiệm Đúng / Sai (4 ý a, b, c, d)";
+        else if (type === 'TRA_LOI_NGAN') sectionTitle = "Phần 3: Trắc nghiệm trả lời ngắn (Điền đáp án)";
 
         $('#currentSectionBadge').text(sectionTitle);
         $('#currentQHeading').text(`Câu hỏi ${currentIndex + 1}`);
@@ -145,11 +163,8 @@
 
         let htmlContent = `<div class="mb-3 font-weight-bold text-dark" style="font-size: 1.02rem;">${q.question}</div>`;
 
-        // KIỂM TRA THÔNG MINH: Nếu có options hợp lệ (A, B, C, D) thì hiển thị trắc nghiệm, ngược lại tự động hiện ô nhập trả lời ngắn
-        let hasOptions = q.options && typeof q.options === 'object' && Object.keys(q.options).length > 0 && (q.options['A'] || q.options['a']);
-
-        if (q.type === 'DUNG_SAI') {
-            let subStatements = q.options && typeof q.options === 'object' ? q.options : { "a": "Nhận định 1", "b": "Nhận định 2", "c": "Nhận định 3", "d": "Nhận định 4" };
+        if (type === 'DUNG_SAI') {
+            let subStatements = q.options && typeof q.options === 'object' ? q.options : { "a": "Nhận định a", "b": "Nhận định b", "c": "Nhận định c", "d": "Nhận định d" };
             if(!studentAnswers[currentIndex]) studentAnswers[currentIndex] = {};
 
             htmlContent += `<div class="table-responsive mt-3"><table class="table table-bordered table-sm text-center">
@@ -165,17 +180,17 @@
             }
             htmlContent += `</tbody></table></div>`;
         } 
-        else if (!hasOptions || q.type === 'TRA_LOI_NGAN') {
-            // TỰ ĐỘNG BẬT Ô NHẬP TRẢ LỜI NGẮN KHI KHÔNG CÓ OPTIONS A,B,C,D
+        else if (type === 'TRA_LOI_NGAN') {
             let val = studentAnswers[currentIndex] || '';
             htmlContent += `
                 <div class="mt-4">
-                    <label class="small font-weight-bold text-muted"><i class="fas fa-pen-nib mr-1"></i> Nhập kết quả trả lời ngắn (làm tròn đến hàng phần trăm nếu là số):</label>
+                    <label class="small font-weight-bold text-muted"><i class="fas fa-pen-nib mr-1"></i> Nhập kết quả trả lời ngắn:</label>
                     <input type="text" class="form-control form-control-lg text-primary font-weight-bold" placeholder="Nhập đáp số (VD: 0,08)..." value="${val}" oninput="saveShort(this.value)">
                 </div>`;
         } 
         else {
-            let opts = q.options;
+            // Phần 1: Trắc nghiệm 4 đáp án A, B, C, D
+            let opts = q.options || { "A": "Phương án A", "B": "Phương án B", "C": "Phương án C", "D": "Phương án D" };
             htmlContent += `<div class="list-options mt-3">`;
             for (let key in opts) {
                 if(!opts[key]) continue;
